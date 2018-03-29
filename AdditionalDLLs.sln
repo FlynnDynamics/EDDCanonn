@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary1", "ClassLibrary1\ClassLibrary1.csproj", "{F423641B-A4FD-4E98-8801-F68579617538}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EDDTK-api", "EDDTK\EDDTK-api.csproj", "{6E3BDDD2-540E-4B95-96CB-A9BF119E1241}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{F423641B-A4FD-4E98-8801-F68579617538}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F423641B-A4FD-4E98-8801-F68579617538}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F423641B-A4FD-4E98-8801-F68579617538}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E3BDDD2-540E-4B95-96CB-A9BF119E1241}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E3BDDD2-540E-4B95-96CB-A9BF119E1241}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E3BDDD2-540E-4B95-96CB-A9BF119E1241}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E3BDDD2-540E-4B95-96CB-A9BF119E1241}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
