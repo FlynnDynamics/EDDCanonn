@@ -127,7 +127,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>5.2.3</Version>
+      <Version>6.0.8</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -142,7 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OxyPlot\OxyPlot.csproj">
-      <Project>{7a0b35c0-dd17-4964-8e9a-44d6cecdc692}</Project>
+      <Project>{FA1ABF3B-212B-41E0-970B-385E48811AA6}</Project>
       <Name>OxyPlot</Name>
     </ProjectReference>
   </ItemGroup>
