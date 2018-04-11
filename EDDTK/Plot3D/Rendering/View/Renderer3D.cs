@@ -205,7 +205,21 @@ namespace EDDTK.Plot3D.Rendering.View
 			Resize += Renderer3D_Resize;
 			Paint += Renderer3D_Paint;
 		}
-	}
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // Renderer3D
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.BackColor = System.Drawing.Color.Black;
+            this.Name = "Renderer3D";
+            this.Size = new System.Drawing.Size(207, 221);
+            this.ResumeLayout(false);
+
+        }
+    }
 
 }
 
