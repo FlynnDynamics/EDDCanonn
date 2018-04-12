@@ -21,8 +21,11 @@ namespace EDDTK.Chart.Controllers.Mouse.Camera
 		protected Coord2d _prevMouse;
 		protected CameraThreadController _threadController;
 
+        protected float _prevZoomX = 1;
+        protected float _prevZoomY = 1;
 		protected float _prevZoomZ = 1;
-		public CameraMouseController()
+
+        public CameraMouseController()
 		{
 		}
 
@@ -147,17 +150,24 @@ namespace EDDTK.Chart.Controllers.Mouse.Camera
 			}
 		}
 
+		// modified - allow zoom on all axis by default
 		public void MouseWheelMoved(object sender, System.Windows.Forms.MouseEventArgs e)
 		{
 			if (((_threadController != null))) {
 				_threadController.StopT();
 			}
 			if (e.Delta > 0) {
+				_prevZoomX = 1.25f;
+				_prevZoomY = 1.25f;
 				_prevZoomZ = 1.25f;
 			} else {
+				_prevZoomX = 0.8f;
+				_prevZoomY = 0.8f;
 				_prevZoomZ = 0.8f;
 			}
 			ZoomZ(_prevZoomZ);
+            ZoomX(_prevZoomX);
+            ZoomY(_prevZoomY);
 		}
 
 	}
