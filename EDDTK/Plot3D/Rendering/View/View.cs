@@ -730,12 +730,14 @@ namespace EDDTK.Plot3D.Rendering.View
 			UpdateCamera(viewport, boundsScaled, (float)boundsScaled.getRadius());
 		}
 
+
+        // Modified, to include some additional viewpoint modes: FRONT, SIDE and SPIN.
 		public void UpdateCamera(ViewPort viewport, BoundingBox3d boundsScaled, float sceneRadiusScaled)
 		{
 			Coord3d target = _center.multiply(_scaling);
 			Coord3d eye = default(Coord3d);
 			_viewpoint.z = sceneRadiusScaled * 2;
-			// maintain a reasonnable distance to the scene for viewing it
+			// maintain a reasonable distance to the scene for viewing it
 			switch (_viewmode) {
 				case Modes.ViewPositionMode.FREE:
 					eye = _viewpoint.cartesian().@add(target);
@@ -748,12 +750,33 @@ namespace EDDTK.Plot3D.Rendering.View
 					// on top
                     eye = eye.cartesian().@add(target);
 					break;
-				case Modes.ViewPositionMode.PROFILE:
+                case Modes.ViewPositionMode.FRONT:
+                    eye = _viewpoint;
+                    eye.x = -PI_div2;
+                    // on x
+                    eye.z = PI_div2;
+                    // on top
+                    eye = eye.cartesian().@add(target);
+                    break;
+                case Modes.ViewPositionMode.SIDE:
+                    eye = _viewpoint;
+                    eye.z = -PI_div2;
+                    // on x
+                    eye.y = PI_div2;
+                    // on top
+                    eye = eye.cartesian().@add(target);
+                    break;
+                case Modes.ViewPositionMode.PROFILE:
 					eye = _viewpoint;
 					eye.y = 0;
                     eye = eye.cartesian().@add(target);
 					break;
-				default:
+                case Modes.ViewPositionMode.SPIN:
+                    eye = _viewpoint;
+                    eye.x = 0;
+                    eye = eye.cartesian().@add(target);
+                    break;
+                default:
 					throw new Exception("Unsupported viewmode : " + _viewmode);
 			}
 			Coord3d up = default(Coord3d);
@@ -784,13 +807,24 @@ namespace EDDTK.Plot3D.Rendering.View
 			_cam.Target = target;
 			_cam.Up = up;
 			_cam.Eye = eye;
-			// Set rendering volume
-			if (_viewmode == Modes.ViewPositionMode.TOP) {
-				_cam.RenderingSphereRadius = (float)(Math.Max(boundsScaled.xmax - boundsScaled.xmin, boundsScaled.ymax - boundsScaled.ymin) / 2);
-				// correctCameraPositionForIncludingTextLabels(viewport) ' quite experimental !
-			} else {
-				_cam.RenderingSphereRadius = sceneRadiusScaled;
-			}
+            // Set rendering volume
+            if (_viewmode == Modes.ViewPositionMode.TOP)
+            {
+                _cam.RenderingSphereRadius = (float)(Math.Max(boundsScaled.xmax - boundsScaled.xmin, boundsScaled.ymax - boundsScaled.ymin) / 2);
+                // correctCameraPositionForIncludingTextLabels(viewport) ' quite experimental !
+            }
+            else if (_viewmode == Modes.ViewPositionMode.FRONT)
+            {
+                _cam.RenderingSphereRadius = (float)(Math.Max(boundsScaled.xmax - boundsScaled.xmin, boundsScaled.zmax - boundsScaled.zmin) / 2);
+            }
+            else if (_viewmode == Modes.ViewPositionMode.SIDE)
+            {
+                _cam.RenderingSphereRadius = (float)(Math.Max(boundsScaled.zmax - boundsScaled.zmin / 2, boundsScaled.ymax - boundsScaled.ymin));
+            }
+            else
+            {
+                _cam.RenderingSphereRadius = sceneRadiusScaled;
+            }
 			// Setup camera (i.e. projection matrix)
 			//cam.setViewPort(canvas.getRendererWidth(),
 			// canvas.getRendererHeight(), left, right);

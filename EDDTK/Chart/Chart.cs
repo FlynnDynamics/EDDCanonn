@@ -25,8 +25,11 @@ namespace EDDTK.Chart
 		protected ICanvas _canvas;
 		protected Coord3d _previousViewPointFree;
 		protected Coord3d _previousViewPointTop;
-		protected Coord3d _previousViewPointProfile;
-		protected List<AbstractCameraController> _controllers;
+        protected Coord3d _previousViewPointFront;
+        protected Coord3d _previousViewPointSide;
+        protected Coord3d _previousViewPointProfile;
+        protected Coord3d _previousViewPointSpin;
+        protected List<AbstractCameraController> _controllers;
 		//protected  capabilities As GLCapabilities
 
 
@@ -203,12 +206,21 @@ namespace EDDTK.Chart
 						_previousViewPointFree = View.ViewPoint;
 						break;
 					case ViewPositionMode.PROFILE:
-						_previousViewPointTop = View.ViewPoint;
-						break;
-					case ViewPositionMode.TOP:
 						_previousViewPointProfile = View.ViewPoint;
 						break;
-					default:
+                    case ViewPositionMode.SPIN:
+                        _previousViewPointSpin = View.ViewPoint;
+                        break;
+                    case ViewPositionMode.TOP:
+						_previousViewPointTop = View.ViewPoint;
+						break;
+                    case ViewPositionMode.FRONT:
+                        _previousViewPointFront = View.ViewPoint;
+                        break;
+                    case ViewPositionMode.SIDE:
+                        _previousViewPointSide = View.ViewPoint;
+                        break;
+                    default:
 						throw new Exception("Unsupported ViewPositionMode :" + previous);
 				}
 				// Set new view mode and former view point
@@ -218,12 +230,21 @@ namespace EDDTK.Chart
 						_view.ViewPoint = ((_previousViewPointFree == null) ? View.DEFAULT_VIEW.Clone() : _previousViewPointFree);
 						break;
 					case ViewPositionMode.PROFILE:
-                        _view.ViewPoint = ((_previousViewPointTop == null) ? View.DEFAULT_VIEW.Clone() : _previousViewPointTop);
-						break;
-					case ViewPositionMode.TOP:
                         _view.ViewPoint = ((_previousViewPointProfile == null) ? View.DEFAULT_VIEW.Clone() : _previousViewPointProfile);
 						break;
-					default:
+                    case ViewPositionMode.SPIN:
+                        _view.ViewPoint = ((_previousViewPointSpin == null) ? View.DEFAULT_VIEW.Clone() : _previousViewPointSpin);
+                        break;
+                    case ViewPositionMode.TOP:
+                        _view.ViewPoint = ((_previousViewPointTop == null) ? View.DEFAULT_VIEW.Clone() : _previousViewPointTop);
+						break;
+                    case ViewPositionMode.FRONT:
+                        _view.ViewPoint = ((_previousViewPointFront == null) ? View.DEFAULT_VIEW.Clone() : _previousViewPointFront);
+                        break;
+                    case ViewPositionMode.SIDE:
+                        _view.ViewPoint = ((_previousViewPointSide == null) ? View.DEFAULT_VIEW.Clone() : _previousViewPointSide);
+                        break;
+                    default:
 						throw new Exception("Unsupported ViewPositionMode :" + previous);
 				}
 				_view.Shoot();

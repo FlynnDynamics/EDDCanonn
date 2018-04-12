@@ -20,15 +20,30 @@ namespace EDDTK.Plot3D.Rendering.View.Modes
 		/// </summary>
 		TOP,
 
-		/// <summary>
-		/// Enforce view point on profile of the scene.
+        /// <summary>
+		/// Enforce view point on top of the scene.
 		/// </summary>
-		PROFILE,
+		FRONT,
 
-		/// <summary>
-		/// No enforcement of view point: let the user freely turn around the scene.
+        /// <summary>
+		/// Enforce view point on top of the scene.
 		/// </summary>
-		FREE
+		SIDE,
+
+        /// <summary>
+        /// Enforce view point on profile of the scene.
+        /// </summary>
+        PROFILE,
+
+        /// <summary>
+		/// Enforce view point on top of the scene.
+		/// </summary>
+		SPIN,
+
+        /// <summary>
+        /// No enforcement of view point: let the user freely turn around the scene.
+        /// </summary>
+        FREE
 
 	}
 
