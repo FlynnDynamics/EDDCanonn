@@ -202,23 +202,20 @@ namespace EDDTK.Chart
 				// Store current view mode and view point in memory
 				ViewPositionMode previous = View.ViewMode;
 				switch (previous) {
-					case ViewPositionMode.FREE:
+					case ViewPositionMode.FREE: // free rotation in both vertical and lateral axis
 						_previousViewPointFree = View.ViewPoint;
 						break;
-					case ViewPositionMode.PROFILE:
+					case ViewPositionMode.PROFILE: // rotation only around the vertical axis
 						_previousViewPointProfile = View.ViewPoint;
 						break;
-                    case ViewPositionMode.SPIN:
+                    case ViewPositionMode.SPIN: // rotation only around the lateral axis
                         _previousViewPointSpin = View.ViewPoint;
                         break;
-                    case ViewPositionMode.TOP:
+                    case ViewPositionMode.TOP: // top view, fixed, simulating a 2d chart
 						_previousViewPointTop = View.ViewPoint;
 						break;
-                    case ViewPositionMode.FRONT:
+                    case ViewPositionMode.FRONT: // front view
                         _previousViewPointFront = View.ViewPoint;
-                        break;
-                    case ViewPositionMode.SIDE:
-                        _previousViewPointSide = View.ViewPoint;
                         break;
                     default:
 						throw new Exception("Unsupported ViewPositionMode :" + previous);
@@ -240,9 +237,6 @@ namespace EDDTK.Chart
 						break;
                     case ViewPositionMode.FRONT:
                         _view.ViewPoint = ((_previousViewPointFront == null) ? View.DEFAULT_VIEW.Clone() : _previousViewPointFront);
-                        break;
-                    case ViewPositionMode.SIDE:
-                        _view.ViewPoint = ((_previousViewPointSide == null) ? View.DEFAULT_VIEW.Clone() : _previousViewPointSide);
                         break;
                     default:
 						throw new Exception("Unsupported ViewPositionMode :" + previous);

@@ -730,7 +730,10 @@ namespace EDDTK.Plot3D.Rendering.View
 			UpdateCamera(viewport, boundsScaled, (float)boundsScaled.getRadius());
 		}
 
-
+        /// <summary>
+        /// Modifications from Spadino
+        /// </summary>
+        /// 
         // Modified, to include some additional viewpoint modes: FRONT, SIDE and SPIN.
 		public void UpdateCamera(ViewPort viewport, BoundingBox3d boundsScaled, float sceneRadiusScaled)
 		{
@@ -752,17 +755,9 @@ namespace EDDTK.Plot3D.Rendering.View
 					break;
                 case Modes.ViewPositionMode.FRONT:
                     eye = _viewpoint;
-                    eye.x = -PI_div2;
+                    eye.x = 0;
                     // on x
-                    eye.z = PI_div2;
-                    // on top
-                    eye = eye.cartesian().@add(target);
-                    break;
-                case Modes.ViewPositionMode.SIDE:
-                    eye = _viewpoint;
-                    eye.z = -PI_div2;
-                    // on x
-                    eye.y = PI_div2;
+                    eye.y = 0;
                     // on top
                     eye = eye.cartesian().@add(target);
                     break;
@@ -773,7 +768,7 @@ namespace EDDTK.Plot3D.Rendering.View
 					break;
                 case Modes.ViewPositionMode.SPIN:
                     eye = _viewpoint;
-                    eye.x = 0;
+                    eye.x = -PI_div2;
                     eye = eye.cartesian().@add(target);
                     break;
                 default:
@@ -816,10 +811,6 @@ namespace EDDTK.Plot3D.Rendering.View
             else if (_viewmode == Modes.ViewPositionMode.FRONT)
             {
                 _cam.RenderingSphereRadius = (float)(Math.Max(boundsScaled.xmax - boundsScaled.xmin, boundsScaled.zmax - boundsScaled.zmin) / 2);
-            }
-            else if (_viewmode == Modes.ViewPositionMode.SIDE)
-            {
-                _cam.RenderingSphereRadius = (float)(Math.Max(boundsScaled.zmax - boundsScaled.zmin / 2, boundsScaled.ymax - boundsScaled.ymin));
             }
             else
             {
