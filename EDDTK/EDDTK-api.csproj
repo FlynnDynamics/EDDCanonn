@@ -7,8 +7,8 @@
     <ProjectGuid>{6E3BDDD2-540E-4B95-96CB-A9BF119E1241}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EDDTK_api</RootNamespace>
-    <AssemblyName>EDDTK-api</AssemblyName>
+    <RootNamespace>EDDTK</RootNamespace>
+    <AssemblyName>EDDTK</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

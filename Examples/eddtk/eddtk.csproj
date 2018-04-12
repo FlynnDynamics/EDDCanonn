@@ -32,8 +32,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EDDTK-api">
-      <HintPath>..\..\EDDTK\bin\Debug\EDDTK-api.dll</HintPath>
+    <Reference Include="EDDTK">
+      <HintPath>..\..\EDDTK\bin\Debug\EDDTK.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK">
       <HintPath>..\..\packages\OpenTK.2.0.0\lib\net20\OpenTK.dll</HintPath>
