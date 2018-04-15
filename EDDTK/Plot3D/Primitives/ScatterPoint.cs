@@ -1,4 +1,13 @@
-﻿using EDDTK.Colors;
+﻿//////////////////////////////////////////////////////////////////////////
+//
+// EDDTK - EDDiscovery
+// 
+// ScatterPoint: Add a point to a scatter chart
+//
+//////////////////////////////////////////////////////////////////////////
+
+
+using EDDTK.Colors;
 using EDDTK.Events;
 using EDDTK.Maths;
 using EDDTK.Plot3D.Rendering.View;
@@ -6,51 +15,51 @@ using OpenTK.Graphics.OpenGL;
 
 namespace EDDTK.Plot3D.Primitives
 {
-    public class ScatterPoint : AbstractDrawable, ISingleColorable {
-        
+    public class ScatterPoint : AbstractDrawable, ISingleColorable
+    {
+
         private Color[] _colors;
         private Color _color;
-        private float _width;
         private Coord3d _coordinates;
-        private Color BLACK;
-        public ScatterPoint() {
+        private float _width;
+
+        public ScatterPoint()
+        {
             _bbox = new BoundingBox3d();
             Width = 1;
-            Color = Color.BLACK;
-        }
-        
-        public ScatterPoint(Coord3d coordinates) : 
-                this(coordinates, Color.BLACK) {
+            Color = Color.RED;
         }
 
-        public ScatterPoint(Coord3d coordinates, Color rgb, float width = 1) {
+        public ScatterPoint(Coord3d coordinates) :
+                this(coordinates, Color.RED)
+        {
+        }
+
+        public ScatterPoint(Coord3d coordinates, Color rgb, float width = 1)
+        {
             _bbox = new BoundingBox3d();
-            Data = coordinates ;
+            Data = coordinates;
             Width = width;
             Color = rgb;
         }
 
-        public ScatterPoint(Coord3d coordinates, Color[] colors, float width = 1) {
+        public ScatterPoint(Coord3d coordinates, Color[] colors, float width = 1)
+        {
             _bbox = new BoundingBox3d();
-            Data = coordinates ;
+            Data = coordinates;
             Width = width;
             Colors = colors;
         }
 
-        public ScatterPoint(Coord3d coordinates, Color bLACK)
+        public void Clear()
         {
-            this._coordinates = coordinates;
-            this.BLACK = BLACK;
-        }
-
-        public void Clear() {
             _coordinates = null;
             _bbox.reset();
         }
-        
+
         public override void Draw(Camera cam)
         {
-            
+
             _transform?.Execute();
 
             GL.PointSize(_width);
@@ -62,34 +71,41 @@ namespace EDDTK.Plot3D.Primitives
 
             if (_coordinates != null)
             {
-                int k = 0;                
-                    if ((_colors != null)) {
-                        GL.Color4(_colors[k].r, _colors[k].g, _colors[k].b, _colors[k].a);
-                        k++;
-                    }
-                    
-                    GL.Vertex3(_coordinates.x, _coordinates.y, _coordinates.z);
+                int k = 0;
+                if ((_colors != null))
+                {
+                    GL.Color4(_colors[k].r, _colors[k].g, _colors[k].b, _colors[k].a);
+                    k++;
+                }
+
+                GL.Vertex3(_coordinates.x, _coordinates.y, _coordinates.z);
             }
             GL.End();
-            
+
             // doDrawBounds (MISSING)
-            
+
         }
-        
-        public override Transform.Transform Transform {
+
+        public override Transform.Transform Transform
+        {
             get => _transform;
-            set {
+            set
+            {
                 _transform = value;
                 UpdateBounds();
             }
         }
 
-        private void UpdateBounds() {
+        private void UpdateBounds()
+        {
             _bbox.reset();
-            _bbox.add(_coordinates);            
+            if (_coordinates != null)
+            {
+                _bbox.add(_coordinates);
+            }
         }
 
-        private Coord3d Data
+        public Coord3d Data
         {
             get => _coordinates;
             set

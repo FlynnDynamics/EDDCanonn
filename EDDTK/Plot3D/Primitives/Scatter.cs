@@ -16,11 +16,11 @@ namespace EDDTK.Plot3D.Primitives
         public Scatter() {
             _bbox = new BoundingBox3d();
             Width = 1;
-            Color = Color.BLACK;
+            Color = Color.RED;
         }
         
         public Scatter(Coord3d[] coordinates) : 
-                this(coordinates, Color.BLACK) {
+                this(coordinates, Color.RED) {
         }
 
         public Scatter(Coord3d[] coordinates, Color rgb, float width = 1) {
