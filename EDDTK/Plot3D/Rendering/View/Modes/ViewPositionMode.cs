@@ -8,11 +8,15 @@ using System.Diagnostics;
 namespace EDDTK.Plot3D.Rendering.View.Modes
 {
 
-	/// <summary>
-	/// Allows to apply a restriction on the degree of freedom that is
-	/// let on the View control.
-	/// </summary>
-	public enum ViewPositionMode
+    /// <summary>
+    /// Allows to apply a restriction on the degree of freedom that is
+    /// let on the View control.
+    /// </summary>
+
+    /// <summary>
+    /// Modified by Spadino (andrea AT andreaspada DOT com)
+    /// </summary>
+    public enum ViewPositionMode
 	{
 
 		/// <summary>
@@ -20,15 +24,25 @@ namespace EDDTK.Plot3D.Rendering.View.Modes
 		/// </summary>
 		TOP,
 
-		/// <summary>
-		/// Enforce view point on profile of the scene.
+        /// <summary>
+		/// Enforce view point on top of the scene.
 		/// </summary>
-		PROFILE,
+		FRONT,
 
-		/// <summary>
-		/// No enforcement of view point: let the user freely turn around the scene.
+        /// <summary>
+        /// No enforcement of view point: let the user freely turn around the scene.
+        /// </summary>
+        FREE,
+
+        /// <summary>
+        /// Enforce view point on profile of the scene.
+        /// </summary>
+        PROFILE,
+
+        /// <summary>
+		/// Enforce view point on top of the scene.
 		/// </summary>
-		FREE
+		SPIN        
 
 	}
 

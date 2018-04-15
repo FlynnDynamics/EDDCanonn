@@ -6,37 +6,43 @@ using OpenTK.Graphics.OpenGL;
 
 namespace EDDTK.Plot3D.Primitives
 {
-    public class Scatter : AbstractDrawable, ISingleColorable {
+    public class ScatterPoint : AbstractDrawable, ISingleColorable {
         
         private Color[] _colors;
         private Color _color;
-        private Coord3d[] _coordinates;
         private float _width;
-        
-        public Scatter() {
+        private Coord3d _coordinates;
+        private Color BLACK;
+        public ScatterPoint() {
             _bbox = new BoundingBox3d();
             Width = 1;
             Color = Color.BLACK;
         }
         
-        public Scatter(Coord3d[] coordinates) : 
+        public ScatterPoint(Coord3d coordinates) : 
                 this(coordinates, Color.BLACK) {
         }
 
-        public Scatter(Coord3d[] coordinates, Color rgb, float width = 1) {
+        public ScatterPoint(Coord3d coordinates, Color rgb, float width = 1) {
             _bbox = new BoundingBox3d();
             Data = coordinates ;
             Width = width;
             Color = rgb;
         }
 
-        public Scatter(Coord3d[] coordinates, Color[] colors, float width = 1) {
+        public ScatterPoint(Coord3d coordinates, Color[] colors, float width = 1) {
             _bbox = new BoundingBox3d();
             Data = coordinates ;
             Width = width;
             Colors = colors;
         }
-        
+
+        public ScatterPoint(Coord3d coordinates, Color bLACK)
+        {
+            this._coordinates = coordinates;
+            this.BLACK = BLACK;
+        }
+
         public void Clear() {
             _coordinates = null;
             _bbox.reset();
@@ -56,17 +62,13 @@ namespace EDDTK.Plot3D.Primitives
 
             if (_coordinates != null)
             {
-                int k = 0;
-                foreach (Coord3d c in _coordinates) {
+                int k = 0;                
                     if ((_colors != null)) {
                         GL.Color4(_colors[k].r, _colors[k].g, _colors[k].b, _colors[k].a);
                         k++;
                     }
                     
-                    GL.Vertex3(c.x, c.y, c.z);
-                    
-                }
-                
+                    GL.Vertex3(_coordinates.x, _coordinates.y, _coordinates.z);
             }
             GL.End();
             
@@ -84,16 +86,10 @@ namespace EDDTK.Plot3D.Primitives
 
         private void UpdateBounds() {
             _bbox.reset();
-            if (_coordinates != null)
-            {
-                foreach (var c in _coordinates)
-                {
-                    _bbox.add(c);
-                }
-            }            
+            _bbox.add(_coordinates);            
         }
 
-        public Coord3d[] Data
+        private Coord3d Data
         {
             get => _coordinates;
             set

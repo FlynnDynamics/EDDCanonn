@@ -25,8 +25,11 @@ namespace EDDTK.Chart
 		protected ICanvas _canvas;
 		protected Coord3d _previousViewPointFree;
 		protected Coord3d _previousViewPointTop;
-		protected Coord3d _previousViewPointProfile;
-		protected List<AbstractCameraController> _controllers;
+        protected Coord3d _previousViewPointFront;
+        protected Coord3d _previousViewPointSide;
+        protected Coord3d _previousViewPointProfile;
+        protected Coord3d _previousViewPointSpin;
+        protected List<AbstractCameraController> _controllers;
 		//protected  capabilities As GLCapabilities
 
 
@@ -193,22 +196,31 @@ namespace EDDTK.Chart
 			}
 		}
 
+        /// <summary>
+        /// Modified by Spadino (andrea AT andreaspada DOT com)
+        /// </summary>
 		public ViewPositionMode ViewMode {
 			get { return _view.ViewMode; }
 			set {
 				// Store current view mode and view point in memory
 				ViewPositionMode previous = View.ViewMode;
 				switch (previous) {
-					case ViewPositionMode.FREE:
+					case ViewPositionMode.FREE: // free rotation in both vertical and lateral axis
 						_previousViewPointFree = View.ViewPoint;
 						break;
-					case ViewPositionMode.PROFILE:
-						_previousViewPointTop = View.ViewPoint;
-						break;
-					case ViewPositionMode.TOP:
+					case ViewPositionMode.PROFILE: // rotation only around the vertical axis
 						_previousViewPointProfile = View.ViewPoint;
 						break;
-					default:
+                    case ViewPositionMode.SPIN: // rotation only around the lateral axis
+                        _previousViewPointSpin = View.ViewPoint;
+                        break;
+                    case ViewPositionMode.TOP: // top view, fixed, simulating a 2d chart
+						_previousViewPointTop = View.ViewPoint;
+						break;
+                    case ViewPositionMode.FRONT: // front view
+                        _previousViewPointFront = View.ViewPoint;
+                        break;
+                    default:
 						throw new Exception("Unsupported ViewPositionMode :" + previous);
 				}
 				// Set new view mode and former view point
@@ -218,12 +230,18 @@ namespace EDDTK.Chart
 						_view.ViewPoint = ((_previousViewPointFree == null) ? View.DEFAULT_VIEW.Clone() : _previousViewPointFree);
 						break;
 					case ViewPositionMode.PROFILE:
-                        _view.ViewPoint = ((_previousViewPointTop == null) ? View.DEFAULT_VIEW.Clone() : _previousViewPointTop);
-						break;
-					case ViewPositionMode.TOP:
                         _view.ViewPoint = ((_previousViewPointProfile == null) ? View.DEFAULT_VIEW.Clone() : _previousViewPointProfile);
 						break;
-					default:
+                    case ViewPositionMode.SPIN:
+                        _view.ViewPoint = ((_previousViewPointSpin == null) ? View.DEFAULT_VIEW.Clone() : _previousViewPointSpin);
+                        break;
+                    case ViewPositionMode.TOP:
+                        _view.ViewPoint = ((_previousViewPointTop == null) ? View.DEFAULT_VIEW.Clone() : _previousViewPointTop);
+						break;
+                    case ViewPositionMode.FRONT:
+                        _view.ViewPoint = ((_previousViewPointFront == null) ? View.DEFAULT_VIEW.Clone() : _previousViewPointFront);
+                        break;
+                    default:
 						throw new Exception("Unsupported ViewPositionMode :" + previous);
 				}
 				_view.Shoot();
