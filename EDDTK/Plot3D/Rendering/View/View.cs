@@ -731,11 +731,9 @@ namespace EDDTK.Plot3D.Rendering.View
 		}
 
         /// <summary>
-        /// Modifications from Spadino
+        /// Modified by Spadino (andrea AT andreaspada DOT com)
         /// </summary>
-        /// 
-        // Modified, to include some additional viewpoint modes: FRONT, SIDE and SPIN.
-		public void UpdateCamera(ViewPort viewport, BoundingBox3d boundsScaled, float sceneRadiusScaled)
+        public void UpdateCamera(ViewPort viewport, BoundingBox3d boundsScaled, float sceneRadiusScaled)
 		{
 			Coord3d target = _center.multiply(_scaling);
 			Coord3d eye = default(Coord3d);

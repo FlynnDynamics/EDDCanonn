@@ -8,11 +8,15 @@ using System.Diagnostics;
 namespace EDDTK.Plot3D.Rendering.View.Modes
 {
 
-	/// <summary>
-	/// Allows to apply a restriction on the degree of freedom that is
-	/// let on the View control.
-	/// </summary>
-	public enum ViewPositionMode
+    /// <summary>
+    /// Allows to apply a restriction on the degree of freedom that is
+    /// let on the View control.
+    /// </summary>
+
+    /// <summary>
+    /// Modified by Spadino (andrea AT andreaspada DOT com)
+    /// </summary>
+    public enum ViewPositionMode
 	{
 
 		/// <summary>

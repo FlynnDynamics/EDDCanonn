@@ -196,6 +196,9 @@ namespace EDDTK.Chart
 			}
 		}
 
+        /// <summary>
+        /// Modified by Spadino (andrea AT andreaspada DOT com)
+        /// </summary>
 		public ViewPositionMode ViewMode {
 			get { return _view.ViewMode; }
 			set {
