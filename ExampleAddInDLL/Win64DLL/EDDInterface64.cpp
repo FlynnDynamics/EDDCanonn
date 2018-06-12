@@ -12,7 +12,7 @@
 
 using namespace std;
 
-void WriteFile(const char* str)		// ASCII file..
+void WriteASCII(const char* str)		// ASCII file..
 {
 	fstream fstream("c:\\code\\eddif.txt", ios::app);         // open the file
 	fstream << str;
@@ -23,7 +23,7 @@ void WriteUnicode(LPCTSTR buffer)
 {
 	char buffer2[30000];
 	WideCharToMultiByte(CP_ACP, 0, buffer, -1, buffer2, sizeof(buffer2), 0, 0);		// need to convert back to ASCII
-	WriteFile((const char*)buffer2);
+	WriteASCII((const char*)buffer2);
 }
 
 void WriteJournalEntry(JournalEntry ptr)
@@ -33,9 +33,9 @@ void WriteJournalEntry(JournalEntry ptr)
 	size_t cbDest = arraysize * sizeof(TCHAR);
 
 	LPCTSTR pszFormat = TEXT("%s: %d:%s :'%s' '%s' '%s' : sys %s\nx%f y%f z%f | td%f ts%u | %d %d | loc '%s' st '%s' gm %s grp %s | %d cr\n");
-	StringCbPrintfW(buffer, cbDest, pszFormat, 
-		ptr.utctime, ptr.indexno, ptr.eventid, 
-		ptr.name, ptr.info, ptr.detailedinfo, 
+	StringCbPrintfW(buffer, cbDest, pszFormat,
+		ptr.utctime, ptr.indexno, ptr.eventid,
+		ptr.name, ptr.info, ptr.detailedinfo,
 		ptr.systemname,
 		ptr.x, ptr.y, ptr.z, ptr.travelleddistance, ptr.travelledseconds, ptr.islanded ? 1 : 0, ptr.isdocked ? 1 : 0, ptr.whereami, ptr.shiptype, ptr.gamemode, ptr.group, ptr.credits);
 
@@ -84,16 +84,44 @@ void WriteJournalEntry(JournalEntry ptr)
 		}
 	}
 
-	WriteFile("--------------- Journal Entry Data\n");
+	wcscat_s(buffer, arraysize, L"\n");
+
+	if (ptr.currentmissions.cDims == 1)
+	{
+		if ((ptr.currentmissions.fFeatures & FADF_BSTR) == FADF_BSTR)
+		{
+			BSTR* bstrArray;
+			HRESULT hr = SafeArrayAccessData(&ptr.currentmissions, (void**)&bstrArray);
+
+			long iMin = 0;
+			SafeArrayGetLBound(&ptr.currentmissions, 1, &iMin);
+			long iMax = 0;
+			SafeArrayGetUBound(&ptr.currentmissions, 1, &iMax);
+
+			for (long i = iMin; i <= iMax; ++i)
+			{
+				wcscat_s(buffer, arraysize, bstrArray[i]);		// WORDs! length
+				wcscat_s(buffer, arraysize, L",");		// WORDs! length
+			}
+		}
+	}
+
+	WriteASCII("--------------- Journal Entry Data\n");
 
 	WriteUnicode(buffer);
-	WriteFile("\n---------------\n");
+	WriteASCII("\n---------------\n");
 }
 
+EDDCallBacks callbacks;
 
-EDD_API BSTR EDDInitialise(BSTR ver)
+EDD_API BSTR EDDInitialise(BSTR ver, BSTR folder, EDDCallBacks pcallbacks)
 {
-	WriteFile("Initialise\n");
+	WriteASCII("Initialise:");
+	WriteUnicode(ver);
+	WriteASCII(",");
+	WriteUnicode(folder);
+	WriteASCII("\n");
+	callbacks = pcallbacks;
 	//MessageBoxW(0, ver, L"Caption ɑːkɒn", MB_OK);
 	return SysAllocString(L"Return String + ɑːkɒn");
 }
@@ -111,13 +139,62 @@ EDD_API void EDDRefresh(BSTR Commander, JournalEntry ptr)
 
 EDD_API void EDDNewJournalEntry(JournalEntry ptr)
 {
+
 	WriteJournalEntry(ptr);
-	//MessageBoxW(0, buffer, L"NJE", MB_OK);
+
+	SAFEARRAY sa;
+
+	JournalEntry je = { 1,1,NULL,NULL,NULL,NULL,sa,sa, NULL,0,0,0, 0,0, 0,0, NULL,NULL,NULL,NULL, 0, NULL, sa };
+
+	Fred fr = { 1,NULL,sa };
+
+	WriteASCII("call:");
+	(*callbacks.historycallback)(22, true, &je);
+
+	const int arraysize = 1000;
+	TCHAR buffer[arraysize];
+	//*buffer = 0;
+	//{
+	//	BSTR* bstrArray;
+	//	HRESULT hr = SafeArrayAccessData(&fr.currentmissions, (void**)&bstrArray);
+
+	//	long iMin = 0;
+	//	SafeArrayGetLBound(&fr.currentmissions, 1, &iMin);
+	//	long iMax = 0;
+	//	SafeArrayGetUBound(&fr.currentmissions, 1, &iMax);
+
+	//	//StringCbPrintfW(buffer, sizeof(buffer), L"Res %d %d", iMin, iMax);
+	//	//WriteUnicode(buffer);
+
+	//	for (long i = iMin; i <= iMax; ++i)
+	//	{
+	//		wcscat_s(buffer, arraysize, bstrArray[i]);		// WORDs! length
+	//		wcscat_s(buffer, arraysize, L",");		// WORDs! length
+	//	}
+	//}
+
+	//WriteUnicode(buffer);
+	//StringCbPrintfW(buffer, sizeof(buffer), L"Res %d %s", fr.a, fr.f);
+
+	WriteUnicode(je.utctime);
+	WriteJournalEntry(je);
+	WriteASCII("back:");
+
+	//WriteUnicode(buffer);
+
+	//MessageBoxW(0, buffer, L"N2018JE", MB_OK);
 }
+
+EDD_API void EDDRequestedHistory(JournalEntry ptr)	// use it don't copy it
+{
+	WriteUnicode(L"Callback history:");
+	WriteJournalEntry(ptr);
+}
+
 
 EDD_API void EDDTerminate()
 {
-	WriteFile("Terminate\n");
+	WriteASCII("Terminate\n");
 	//MessageBoxW(0, L"!", L"Terminate", MB_OK);
 }
 
@@ -155,9 +232,9 @@ EDD_API BSTR EDDActionCommand(BSTR action, SAFEARRAY& args)		// should always re
 
 	WideCharToMultiByte(CP_ACP, 0, buffer, -1, buffer2, sizeof(buffer2), 0, 0);		// need to convert back to ASCII
 
-	WriteFile("Action Command: ");
-	WriteFile(buffer2);
-	WriteFile("\n");
+	WriteASCII("Action Command: ");
+	WriteASCII(buffer2);
+	WriteASCII("\n");
 
 	return SysAllocString(L"DLL Return value");
 }

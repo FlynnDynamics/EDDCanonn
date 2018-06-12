@@ -22,12 +22,61 @@ namespace CHash
             InitializeComponent();
         }
 
+        public void RequestHistory(long index, bool isjid, out EDDDLLIF.JournalEntry f)
+        {
+            EDDDLLIF.JournalEntry nje = new EDDDLLIF.JournalEntry() { ver = 99, indexno = 19 };
+
+            nje.utctime = "99/98/97";
+            nje.name = "EventSummary!";
+            nje.info = "Info";
+            nje.detailedinfo = "DI";
+            nje.materials = new string[2] { "one", "two" };
+            nje.commodities = new string[2] { "c-one", "c-two" };
+            nje.currentmissions = new string[2] { "m-one", "m-two" };
+            nje.systemname = "Sys Fred";
+            nje.x = 100.1;
+            nje.y = 200.1;
+            nje.z = 300.1;
+            nje.travelleddistance = 1234.5;
+            nje.travelledseconds = 6789;
+            nje.islanded = true;
+            nje.isdocked = true;
+            nje.whereami = "Body";
+            nje.shiptype = "Anaconda";
+            nje.gamemode = "Open";
+            nje.group = "Fred";
+            nje.credits = 123456789;
+            nje.eventid = "FunEvent";
+            nje.currentmissions = new string[] { "M1", "M2" };
+
+            f = nje;
+        }
+        //public EDDDLLIF.Fred RequestHistory(long index, bool isjid)
+        //{
+        //    return new EDDDLLIF.Fred();//new EDDDLLIF.JournalEntry();
+
+        //public void RequestHistory(long index, bool isjid, out EDDDLLIF.Fred f)
+        //{
+        //    System.Diagnostics.Debug.WriteLine("Request history " + index + " " + isjid);
+        //    f = new EDDDLLIF.Fred() { a = 2022, b = "kwkw" } ;
+        //    f.currentmissions = new string[] { "a", "b" };
+        //}
+        ////{
+
+
+        //    return nje;
+        //}
+
+        public EDDDLLIF.EDDCallBacks callbacks = new EDDDLLIF.EDDCallBacks();
+
         private void button1_Click(object sender, EventArgs e)
         {
             if ( mgr.Count == 0 )
-            { 
-                int n = mgr.Load(@"..\..\..\x64\debug", "1.2.3.4");
-                richTextBox1.Text += "DLL Loaded: " + n + Environment.NewLine;
+            {
+                callbacks.ver = 1;
+                callbacks.historycallback = RequestHistory;
+                string r = mgr.Load(@"..\..\..\x64\debug", "1.2.3.4",@"c:\code", callbacks, "All");
+                richTextBox1.Text += "DLL Loaded: " + r + Environment.NewLine;
             }
             else
                 richTextBox1.Text += "Already loaded" + Environment.NewLine;
@@ -43,12 +92,13 @@ namespace CHash
         {
             EDDDLLIF.JournalEntry nje = new EDDDLLIF.JournalEntry() { ver = 99, indexno = 19 };
 
-            nje.utctime = "1/2/3";
+            nje.utctime = DateTime.UtcNow.ToString();
             nje.name = "EventSummary";
             nje.info = "Info";
             nje.detailedinfo = "DI";
             nje.materials = new string[2] { "one", "two" };
             nje.commodities = new string[2] { "c-one", "c-two" };
+            nje.currentmissions = new string[2] { "m-one", "m-two" };
             nje.systemname = "Sys Fred";
             nje.x = 100.1;
             nje.y = 200.1;
@@ -85,6 +135,7 @@ namespace CHash
             nje.detailedinfo = "DI";
             nje.materials = new string[2] { "one", "two" };
             nje.commodities = new string[2] { "c-one", "c-two" };
+            nje.currentmissions = new string[2] { "m-one", "m-two" };
             nje.systemname = "Sys Fred";
             nje.x = 100.1;
             nje.y = 200.1;

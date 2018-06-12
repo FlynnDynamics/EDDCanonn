@@ -51,11 +51,31 @@ namespace EDDiscovery.DLL
             [FieldOffset(128)] [MarshalAs(UnmanagedType.BStr)] public string group;
             [FieldOffset(136)] public long credits;
             [FieldOffset(144)] [MarshalAs(UnmanagedType.BStr)] public string eventid;
+            [FieldOffset(152)] [MarshalAs(UnmanagedType.SafeArray)] public string[] currentmissions;
         };
+
+        public struct Fred
+        {
+            public int a;
+            [MarshalAs(UnmanagedType.BStr)] public string b;
+            [MarshalAs(UnmanagedType.SafeArray)] public string[] currentmissions;
+        }
+
+        //  [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void EDDRequestHistory(long index, bool isjid, out JournalEntry f);
+
+        [StructLayout(LayoutKind.Explicit)]
+        public struct EDDCallBacks
+        {
+            [FieldOffset(0)] public int ver;
+            [FieldOffset(8)] public EDDRequestHistory historycallback;
+        }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.BStr)]
-        public delegate String EDDInitialise([MarshalAs(UnmanagedType.BStr)]String vstr);
+        public delegate String EDDInitialise([MarshalAs(UnmanagedType.BStr)]String vstr,
+                                             [MarshalAs(UnmanagedType.BStr)]String dllfolder,
+                                             EDDCallBacks callbacks);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void EDDRefresh([MarshalAs(UnmanagedType.BStr)]String cmdname, JournalEntry lastje);
@@ -66,9 +86,16 @@ namespace EDDiscovery.DLL
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void EDDTerminate();
 
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]     
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.BStr)]                         // paras can be an empty array, but is always present
         public delegate String EDDActionCommand([MarshalAs(UnmanagedType.BStr)]String cmdname, [MarshalAs(UnmanagedType.SafeArray)]string[] paras);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void EDDActionJournalEntry(JournalEntry lastje);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void EDDRequestedHistory(JournalEntry lastje);
+
     }
 
 

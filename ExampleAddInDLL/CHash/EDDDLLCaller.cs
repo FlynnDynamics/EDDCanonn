@@ -1,12 +1,24 @@
-﻿using EDDiscovery.DLL;
+﻿/*
+ * Copyright © 2015 - 2018 EDDiscovery development team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
+ * file except in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
+ * ANY KIND, either express or implied. See the License for the specific language
+ * governing permissions and limitations under the License.
+ * 
+ * EDDiscovery is not affiliated with Frontier Developments plc.
+ */
+
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CHash
+namespace EDDiscovery.DLL
 {
     public class EDDDLLCaller
     {
@@ -15,40 +27,59 @@ namespace CHash
 
         private IntPtr pDll = IntPtr.Zero;
         private IntPtr pNewJournalEntry = IntPtr.Zero;
+        private IntPtr pActionJournalEntry = IntPtr.Zero;
         private IntPtr pActionCommand = IntPtr.Zero;
+        private IntPtr pRequestedHistory = IntPtr.Zero;
 
-        public bool Load(string path, string ourversion)
+        public bool Load(string path)
         {
             if (pDll == IntPtr.Zero)
             {
-                pDll = NativeMethods.LoadLibrary(path);
+                pDll = BaseUtils.Win32.UnsafeNativeMethods.LoadLibrary(path);
 
                 if (pDll != IntPtr.Zero)
                 {
-                    IntPtr peddinit = NativeMethods.GetProcAddress(pDll, "EDDInitialise");
+                    IntPtr peddinit = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDInitialise");
 
                     if (peddinit != IntPtr.Zero)        // must have this to be an EDD DLL
                     {
                         Name = System.IO.Path.GetFileNameWithoutExtension(path);
-
-                        EDDDLLIF.EDDInitialise edinit = (EDDDLLIF.EDDInitialise)Marshal.GetDelegateForFunctionPointer(
-                                                                                            peddinit,
-                                                                                            typeof(EDDDLLIF.EDDInitialise));
-                        Version = edinit(ourversion);
-
-                        pNewJournalEntry = NativeMethods.GetProcAddress(pDll, "EDDNewJournalEntry");
-                        pActionCommand = NativeMethods.GetProcAddress(pDll, "EDDActionCommand");
-
-                        bool ok = Version != null && Version.Length > 0;
-
-                        if (!ok)
-                        {
-                            NativeMethods.FreeLibrary(pDll);
-                            pDll = IntPtr.Zero;
-                        }
-
-                        return pDll != IntPtr.Zero;
+                        pNewJournalEntry = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDNewJournalEntry");
+                        pActionJournalEntry = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDActionJournalEntry");
+                        pActionCommand = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDActionCommand");
+                        pRequestedHistory = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDRequestedHistory");
+                        return true;
                     }
+                    else
+                    {
+                        BaseUtils.Win32.UnsafeNativeMethods.FreeLibrary(pDll);
+                        pDll = IntPtr.Zero;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public bool Init(string ourversion, string dllfolder, EDDDLLIF.EDDCallBacks callbacks)
+        {
+            if (pDll != IntPtr.Zero)
+            {
+                IntPtr peddinit = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDInitialise");
+
+                EDDDLLIF.EDDInitialise edinit = (EDDDLLIF.EDDInitialise)Marshal.GetDelegateForFunctionPointer(
+                                                                                                peddinit,
+                                                                                                typeof(EDDDLLIF.EDDInitialise));
+                Version = edinit(ourversion, dllfolder, callbacks);
+
+                bool ok = Version != null && Version.Length > 0;
+
+                if (ok)
+                    return true;
+                else
+                {
+                    BaseUtils.Win32.UnsafeNativeMethods.FreeLibrary(pDll);
+                    pDll = IntPtr.Zero;
                 }
             }
 
@@ -59,7 +90,7 @@ namespace CHash
         {
             if (pDll != IntPtr.Zero)
             {
-                IntPtr pAddressOfFunctionToCall = NativeMethods.GetProcAddress(pDll, "EDDTerminate");
+                IntPtr pAddressOfFunctionToCall = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDTerminate");
 
                 if (pAddressOfFunctionToCall != IntPtr.Zero)
                 {
@@ -69,7 +100,7 @@ namespace CHash
                     edf();
                 }
 
-                NativeMethods.FreeLibrary(pDll);
+                BaseUtils.Win32.UnsafeNativeMethods.FreeLibrary(pDll);
                 pDll = IntPtr.Zero;
                 Version = null;
                 return true;
@@ -78,18 +109,18 @@ namespace CHash
             return false;
         }
 
-        public bool Refresh(string cmdr , EDDDLLIF.JournalEntry je)
+        public bool Refresh(string cmdr, EDDDLLIF.JournalEntry je)
         {
             if (pDll != IntPtr.Zero)
             {
-                IntPtr pAddressOfFunctionToCall = NativeMethods.GetProcAddress(pDll, "EDDRefresh");
+                IntPtr pAddressOfFunctionToCall = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDRefresh");
 
                 if (pAddressOfFunctionToCall != IntPtr.Zero)
                 {
                     EDDDLLIF.EDDRefresh edf = (EDDDLLIF.EDDRefresh)Marshal.GetDelegateForFunctionPointer(
                                                                                         pAddressOfFunctionToCall,
                                                                                         typeof(EDDDLLIF.EDDRefresh));
-                    edf(cmdr,je);
+                    edf(cmdr, je);
                     return true;
                 }
             }
@@ -111,18 +142,84 @@ namespace CHash
             return false;
         }
 
-        public string ActionCommand(string cmd, string[] paras)
+        public bool ActionJournalEntry(EDDDLLIF.JournalEntry je)
+        {
+            if (pDll != IntPtr.Zero && pActionJournalEntry != IntPtr.Zero)
+            {
+                EDDDLLIF.EDDActionJournalEntry edf = (EDDDLLIF.EDDActionJournalEntry)Marshal.GetDelegateForFunctionPointer(
+                                                                                    pActionJournalEntry,
+                                                                                    typeof(EDDDLLIF.EDDActionJournalEntry));
+                edf(je);
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool RequestedHistory(EDDDLLIF.JournalEntry nje)
+        {
+            if (pDll != IntPtr.Zero && pRequestedHistory != IntPtr.Zero)
+            {
+                EDDDLLIF.EDDRequestedHistory edf = (EDDDLLIF.EDDRequestedHistory)Marshal.GetDelegateForFunctionPointer(
+                                                                                    pNewJournalEntry,
+                                                                                    typeof(EDDDLLIF.EDDRequestedHistory));
+                edf(nje);
+                return true;
+            }
+
+            return false;
+        }
+
+        public string ActionCommand(string cmd, string[] paras) // paras must be present..
         {
             if (pDll != IntPtr.Zero && pActionCommand != IntPtr.Zero)
             {
                 EDDDLLIF.EDDActionCommand edf = (EDDDLLIF.EDDActionCommand)Marshal.GetDelegateForFunctionPointer(
                                                                                     pActionCommand,
                                                                                     typeof(EDDDLLIF.EDDActionCommand));
-                return edf(cmd,paras);
+                return edf(cmd, paras);
             }
 
             return null;
         }
 
+
+        //static public EDDDLLIF.JournalEntry CreateFromHistoryEntry(EliteDangerousCore.HistoryEntry he)
+        //{
+        //    if (he == null)
+        //    {
+        //        return new EDDDLLIF.JournalEntry() { ver = 1, indexno = -1 };
+        //    }
+        //    else
+        //    {
+        //        EDDDLLIF.JournalEntry je = new EDDDLLIF.JournalEntry()
+        //        {
+        //            ver = 1,
+        //            indexno = he.Indexno,
+        //            utctime = he.EventTimeUTC.ToStringZulu(),
+        //            name = he.EventSummary,
+        //            systemname = he.System.Name,
+        //            x = he.System.X,
+        //            y = he.System.Y,
+        //            z = he.System.Z,
+        //            travelleddistance = he.TravelledDistance,
+        //            travelledseconds = (long)he.TravelledSeconds.TotalSeconds,
+        //            islanded = he.IsLanded,
+        //            isdocked = he.IsDocked,
+        //            whereami = he.WhereAmI,
+        //            shiptype = he.ShipType,
+        //            gamemode = he.GameMode,
+        //            group = he.Group,
+        //            credits = he.Credits,
+        //            eventid = he.journalEntry.EventTypeStr
+        //        };
+
+        //        he.journalEntry.FillInformation(out je.info, out je.detailedinfo);
+
+        //        je.materials = (from x in he.MaterialCommodity.Sort(false) select x.name + ":" + x.count.ToStringInvariant()).ToArray();
+        //        je.commodities = (from x in he.MaterialCommodity.Sort(true) select x.name + ":" + x.count.ToStringInvariant()).ToArray();
+        //        return je;
+        //    }
+        //}
     }
 }
