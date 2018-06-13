@@ -28,19 +28,28 @@ void WriteUnicode(LPCTSTR buffer)
 
 void WriteJournalEntry(JournalEntry ptr)
 {
+	if (ptr.indexno == -1)
+	{
+		WriteASCII("Journal entry is invalid\n");
+		return;
+	}
+
 	int const arraysize = 30000;
 	TCHAR buffer[arraysize];
 	size_t cbDest = arraysize * sizeof(TCHAR);
 
-	LPCTSTR pszFormat = TEXT("%s: %d:%s :'%s' '%s' '%s' : sys %s\nx%f y%f z%f | td%f ts%u | %d %d | loc '%s' st '%s' gm %s grp %s | %d cr\n");
+	LPCTSTR pszFormat = TEXT("%s: %d:%s :'%s' '%s' '%s' : sys %s\nx%f y%f z%f | td%f ts%u | %d %d | loc '%s' st '%s' gm %s grp %s | %d cr | jid %d rec %d\n");
 	StringCbPrintfW(buffer, cbDest, pszFormat,
 		ptr.utctime, ptr.indexno, ptr.eventid,
 		ptr.name, ptr.info, ptr.detailedinfo,
 		ptr.systemname,
-		ptr.x, ptr.y, ptr.z, ptr.travelleddistance, ptr.travelledseconds, ptr.islanded ? 1 : 0, ptr.isdocked ? 1 : 0, ptr.whereami, ptr.shiptype, ptr.gamemode, ptr.group, ptr.credits);
+		ptr.x, ptr.y, ptr.z, ptr.travelleddistance, ptr.travelledseconds, ptr.islanded ? 1 : 0, ptr.isdocked ? 1 : 0, ptr.whereami, ptr.shiptype, ptr.gamemode, ptr.group, ptr.credits,
+		ptr.jid, ptr.totalrecords);
 
 	//int of = offsetof(NewJournalEntry, whereami);
 	//StringCbPrintfW(buffer, cbDest, L"%d", of);
+
+	wcscat_s(buffer, arraysize, L"Materials:");
 
 	if (ptr.materials.cDims == 1)
 	{
@@ -63,6 +72,7 @@ void WriteJournalEntry(JournalEntry ptr)
 		}
 	}
 	wcscat_s(buffer, arraysize, L"\n");
+	wcscat_s(buffer, arraysize, L"Commodities:");
 
 	if (ptr.commodities.cDims == 1)
 	{
@@ -85,6 +95,7 @@ void WriteJournalEntry(JournalEntry ptr)
 	}
 
 	wcscat_s(buffer, arraysize, L"\n");
+	wcscat_s(buffer, arraysize, L"Missions:");
 
 	if (ptr.currentmissions.cDims == 1)
 	{
@@ -106,17 +117,18 @@ void WriteJournalEntry(JournalEntry ptr)
 		}
 	}
 
-	WriteASCII("--------------- Journal Entry Data\n");
+	wcscat_s(buffer, arraysize, L"\n");
 
+	WriteASCII("--------------- Journal Entry Data\n");
 	WriteUnicode(buffer);
-	WriteASCII("\n---------------\n");
+	WriteASCII("--------------- END \n");
 }
 
 EDDCallBacks callbacks;
 
 EDD_API BSTR EDDInitialise(BSTR ver, BSTR folder, EDDCallBacks pcallbacks)
 {
-	WriteASCII("Initialise:");
+	WriteASCII("\n\n============================\nInitialise:");
 	WriteUnicode(ver);
 	WriteASCII(",");
 	WriteUnicode(folder);
@@ -128,66 +140,20 @@ EDD_API BSTR EDDInitialise(BSTR ver, BSTR folder, EDDCallBacks pcallbacks)
 
 EDD_API void EDDRefresh(BSTR Commander, JournalEntry ptr)
 {
-	TCHAR buffer[1000];
-	wcscpy_s(buffer, 1000, L"Refresh:");
-	wcscat_s(buffer, 1000, Commander);
+	int const arraysize = 3000;
+
+	TCHAR buffer[arraysize];
+	wcscpy_s(buffer, arraysize, L"Refresh:");
+	wcscat_s(buffer, arraysize, Commander);
+	wcscat_s(buffer, arraysize, L"\n");
 	WriteUnicode(buffer);
 	WriteJournalEntry(ptr);
-	//MessageBoxW(0, Commander, L"Refresh", MB_OK);
 }
 
 
 EDD_API void EDDNewJournalEntry(JournalEntry ptr)
 {
-
-	WriteJournalEntry(ptr);
-
-	SAFEARRAY sa;
-
-	JournalEntry je = { 1,1,NULL,NULL,NULL,NULL,sa,sa, NULL,0,0,0, 0,0, 0,0, NULL,NULL,NULL,NULL, 0, NULL, sa };
-
-	Fred fr = { 1,NULL,sa };
-
-	WriteASCII("call:");
-	(*callbacks.historycallback)(22, true, &je);
-
-	const int arraysize = 1000;
-	TCHAR buffer[arraysize];
-	//*buffer = 0;
-	//{
-	//	BSTR* bstrArray;
-	//	HRESULT hr = SafeArrayAccessData(&fr.currentmissions, (void**)&bstrArray);
-
-	//	long iMin = 0;
-	//	SafeArrayGetLBound(&fr.currentmissions, 1, &iMin);
-	//	long iMax = 0;
-	//	SafeArrayGetUBound(&fr.currentmissions, 1, &iMax);
-
-	//	//StringCbPrintfW(buffer, sizeof(buffer), L"Res %d %d", iMin, iMax);
-	//	//WriteUnicode(buffer);
-
-	//	for (long i = iMin; i <= iMax; ++i)
-	//	{
-	//		wcscat_s(buffer, arraysize, bstrArray[i]);		// WORDs! length
-	//		wcscat_s(buffer, arraysize, L",");		// WORDs! length
-	//	}
-	//}
-
-	//WriteUnicode(buffer);
-	//StringCbPrintfW(buffer, sizeof(buffer), L"Res %d %s", fr.a, fr.f);
-
-	WriteUnicode(je.utctime);
-	WriteJournalEntry(je);
-	WriteASCII("back:");
-
-	//WriteUnicode(buffer);
-
-	//MessageBoxW(0, buffer, L"N2018JE", MB_OK);
-}
-
-EDD_API void EDDRequestedHistory(JournalEntry ptr)	// use it don't copy it
-{
-	WriteUnicode(L"Callback history:");
+	WriteASCII("NewJournalEntry:\n");
 	WriteJournalEntry(ptr);
 }
 
@@ -195,7 +161,6 @@ EDD_API void EDDRequestedHistory(JournalEntry ptr)	// use it don't copy it
 EDD_API void EDDTerminate()
 {
 	WriteASCII("Terminate\n");
-	//MessageBoxW(0, L"!", L"Terminate", MB_OK);
 }
 
 EDD_API BSTR EDDActionCommand(BSTR action, SAFEARRAY& args)		// should always return a string
@@ -206,35 +171,48 @@ EDD_API BSTR EDDActionCommand(BSTR action, SAFEARRAY& args)		// should always re
 
 	*buffer = 0;
 
-	wcscat_s(buffer, arraysize, action);
-	wcscat_s(buffer, arraysize, L":");
+	long iMin = 0;
+	SafeArrayGetLBound(&args, 1, &iMin);
+	long iMax = 0;
+	SafeArrayGetUBound(&args, 1, &iMax);
 
-	if (args.cDims == 1)
+	StringCbPrintfW(buffer, cbDest, L"Action Command %s: %d %d: ", action, iMin, iMax);
+
+	BSTR* bstrArray;
+	HRESULT hr = SafeArrayAccessData(&args, (void**)&bstrArray);
+
+	for (long i = iMin; i <= iMax; ++i)
 	{
-		if ((args.fFeatures & FADF_BSTR) == FADF_BSTR)
+		wcscat_s(buffer, arraysize, bstrArray[i]);
+		wcscat_s(buffer, arraysize, L",");		// WORDs! length
+	}
+
+	WriteUnicode(buffer);
+	WriteASCII("\n");
+
+	if (wcscmp(action, L"HISTORY") == 0)
+	{
+		if (callbacks.RequestHistory != NULL)
 		{
-			BSTR* bstrArray;
-			HRESULT hr = SafeArrayAccessData(&args, (void**)&bstrArray);
-
-			long iMin = 0;
-			SafeArrayGetLBound(&args, 1, &iMin);
-			long iMax = 0;
-			SafeArrayGetUBound(&args, 1, &iMax);
-
-			for (long i = iMin; i <= iMax; ++i)
+			for (int i = 0; i < 5; i++)
 			{
-				wcscat_s(buffer, arraysize, bstrArray[i]);
+				WriteASCII("call back:\n");
+				SAFEARRAY sa;
+				JournalEntry je = { 1,1,NULL,NULL,NULL,NULL,sa,sa, NULL,0,0,0, 0,0, 0,0, NULL,NULL,NULL,NULL, 0, NULL, sa };
+				(*callbacks.RequestHistory)(i, false, &je);		// perform a call back..
+				WriteJournalEntry(je);
 			}
 		}
 	}
 
-	char buffer2[1000];
-
-	WideCharToMultiByte(CP_ACP, 0, buffer, -1, buffer2, sizeof(buffer2), 0, 0);		// need to convert back to ASCII
-
-	WriteASCII("Action Command: ");
-	WriteASCII(buffer2);
-	WriteASCII("\n");
+	if (wcscmp(action, L"PROGRAM") == 0 && iMax == 1)
+	{
+		if (callbacks.RunAction != NULL)
+		{
+			WriteASCII("Run Action:\n");
+			callbacks.RunAction(bstrArray[0], bstrArray[1]);
+		}
+	}
 
 	return SysAllocString(L"DLL Return value");
 }
@@ -242,7 +220,7 @@ EDD_API BSTR EDDActionCommand(BSTR action, SAFEARRAY& args)		// should always re
 EDD_API void EDDActionJournalEntry(JournalEntry ptr)
 {
 	TCHAR buffer[1000];
-	wcscpy_s(buffer, 1000, L"Journal Entry sent:");
+	wcscpy_s(buffer, 1000, L"Journal Entry sent:\n");
 	WriteUnicode(buffer);
 	WriteJournalEntry(ptr);
 }

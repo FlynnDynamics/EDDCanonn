@@ -22,11 +22,11 @@ namespace CHash
             InitializeComponent();
         }
 
-        public void RequestHistory(long index, bool isjid, out EDDDLLIF.JournalEntry f)
+        public bool RequestHistory(long index, bool isjid, out EDDDLLIF.JournalEntry f)
         {
             EDDDLLIF.JournalEntry nje = new EDDDLLIF.JournalEntry() { ver = 99, indexno = 19 };
 
-            nje.utctime = "99/98/97";
+            nje.utctime = DateTime.UtcNow.ToString();
             nje.name = "EventSummary!";
             nje.info = "Info";
             nje.detailedinfo = "DI";
@@ -48,24 +48,20 @@ namespace CHash
             nje.credits = 123456789;
             nje.eventid = "FunEvent";
             nje.currentmissions = new string[] { "M1", "M2" };
+            nje.totalrecords = 2001;
+            nje.jid = 101;
 
             f = nje;
+
+            richTextBox1.Text += "Request history " + index + " " + isjid + Environment.NewLine;
+            return true;
         }
-        //public EDDDLLIF.Fred RequestHistory(long index, bool isjid)
-        //{
-        //    return new EDDDLLIF.Fred();//new EDDDLLIF.JournalEntry();
 
-        //public void RequestHistory(long index, bool isjid, out EDDDLLIF.Fred f)
-        //{
-        //    System.Diagnostics.Debug.WriteLine("Request history " + index + " " + isjid);
-        //    f = new EDDDLLIF.Fred() { a = 2022, b = "kwkw" } ;
-        //    f.currentmissions = new string[] { "a", "b" };
-        //}
-        ////{
-
-
-        //    return nje;
-        //}
+        public bool RunAction(string eventname, string paras)
+        {
+            richTextBox1.Text += "Run action " + eventname + " " + paras + Environment.NewLine;
+            return true;
+        }
 
         public EDDDLLIF.EDDCallBacks callbacks = new EDDDLLIF.EDDCallBacks();
 
@@ -74,7 +70,9 @@ namespace CHash
             if ( mgr.Count == 0 )
             {
                 callbacks.ver = 1;
-                callbacks.historycallback = RequestHistory;
+                callbacks.RequestHistory = RequestHistory;
+                callbacks.RunAction = RunAction;
+
                 string r = mgr.Load(@"..\..\..\x64\debug", "1.2.3.4",@"c:\code", callbacks, "All");
                 richTextBox1.Text += "DLL Loaded: " + r + Environment.NewLine;
             }
@@ -113,6 +111,8 @@ namespace CHash
             nje.group = "Fred";
             nje.credits = 123456789;
             nje.eventid = "FunEvent";
+            nje.totalrecords = 2001;
+            nje.jid = 101;
 
             mgr.NewJournalEntry(nje);
 
@@ -149,6 +149,8 @@ namespace CHash
             nje.gamemode = "Open";
             nje.group = "Fred";
             nje.credits = 123456789;
+            nje.totalrecords = 2001;
+            nje.jid = 101;
 
 
             mgr.Refresh("Jameson", nje);

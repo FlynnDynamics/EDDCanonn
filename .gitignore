@@ -1,16 +1,10 @@
 bin
 obj
 packages
+/ExampleAddInDLL/Win64DLL/x64
 .vs
 *.csproj.user
 *.suo
-*.obj
-*.idb
-*.pdb
-*.log
-*.tlog
-*.dll
-*.ilk
 /logs
 /Installer/EDDiscovery-cache
 /Installer/AnyCPU_DebugSetupFiles

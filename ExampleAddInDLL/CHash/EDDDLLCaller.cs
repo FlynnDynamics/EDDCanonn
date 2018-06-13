@@ -29,7 +29,6 @@ namespace EDDiscovery.DLL
         private IntPtr pNewJournalEntry = IntPtr.Zero;
         private IntPtr pActionJournalEntry = IntPtr.Zero;
         private IntPtr pActionCommand = IntPtr.Zero;
-        private IntPtr pRequestedHistory = IntPtr.Zero;
 
         public bool Load(string path)
         {
@@ -47,7 +46,6 @@ namespace EDDiscovery.DLL
                         pNewJournalEntry = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDNewJournalEntry");
                         pActionJournalEntry = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDActionJournalEntry");
                         pActionCommand = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDActionCommand");
-                        pRequestedHistory = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDRequestedHistory");
                         return true;
                     }
                     else
@@ -156,20 +154,6 @@ namespace EDDiscovery.DLL
             return false;
         }
 
-        public bool RequestedHistory(EDDDLLIF.JournalEntry nje)
-        {
-            if (pDll != IntPtr.Zero && pRequestedHistory != IntPtr.Zero)
-            {
-                EDDDLLIF.EDDRequestedHistory edf = (EDDDLLIF.EDDRequestedHistory)Marshal.GetDelegateForFunctionPointer(
-                                                                                    pNewJournalEntry,
-                                                                                    typeof(EDDDLLIF.EDDRequestedHistory));
-                edf(nje);
-                return true;
-            }
-
-            return false;
-        }
-
         public string ActionCommand(string cmd, string[] paras) // paras must be present..
         {
             if (pDll != IntPtr.Zero && pActionCommand != IntPtr.Zero)
@@ -183,43 +167,5 @@ namespace EDDiscovery.DLL
             return null;
         }
 
-
-        //static public EDDDLLIF.JournalEntry CreateFromHistoryEntry(EliteDangerousCore.HistoryEntry he)
-        //{
-        //    if (he == null)
-        //    {
-        //        return new EDDDLLIF.JournalEntry() { ver = 1, indexno = -1 };
-        //    }
-        //    else
-        //    {
-        //        EDDDLLIF.JournalEntry je = new EDDDLLIF.JournalEntry()
-        //        {
-        //            ver = 1,
-        //            indexno = he.Indexno,
-        //            utctime = he.EventTimeUTC.ToStringZulu(),
-        //            name = he.EventSummary,
-        //            systemname = he.System.Name,
-        //            x = he.System.X,
-        //            y = he.System.Y,
-        //            z = he.System.Z,
-        //            travelleddistance = he.TravelledDistance,
-        //            travelledseconds = (long)he.TravelledSeconds.TotalSeconds,
-        //            islanded = he.IsLanded,
-        //            isdocked = he.IsDocked,
-        //            whereami = he.WhereAmI,
-        //            shiptype = he.ShipType,
-        //            gamemode = he.GameMode,
-        //            group = he.Group,
-        //            credits = he.Credits,
-        //            eventid = he.journalEntry.EventTypeStr
-        //        };
-
-        //        he.journalEntry.FillInformation(out je.info, out je.detailedinfo);
-
-        //        je.materials = (from x in he.MaterialCommodity.Sort(false) select x.name + ":" + x.count.ToStringInvariant()).ToArray();
-        //        je.commodities = (from x in he.MaterialCommodity.Sort(true) select x.name + ":" + x.count.ToStringInvariant()).ToArray();
-        //        return je;
-        //    }
-        //}
     }
 }
