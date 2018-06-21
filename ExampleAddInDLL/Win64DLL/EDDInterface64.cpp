@@ -135,7 +135,8 @@ EDD_API BSTR EDDInitialise(BSTR ver, BSTR folder, EDDCallBacks pcallbacks)
 	WriteASCII("\n");
 	callbacks = pcallbacks;
 	//MessageBoxW(0, ver, L"Caption ɑːkɒn", MB_OK);
-	return SysAllocString(L"Return String + ɑːkɒn");
+	return SysAllocString(L"0.1.2.3");
+	//return SysAllocString(L"!Error is this");		// for an error
 }
 
 EDD_API void EDDRefresh(BSTR Commander, JournalEntry ptr)
