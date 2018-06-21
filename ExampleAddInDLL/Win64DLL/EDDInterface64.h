@@ -77,11 +77,20 @@ extern "C"
 	// Called with EDD version A.B.C.D, return NULL if can't operate, or your version as X.Y.Z.B, or !errorstring to say your unhappy (! indicates error)
 	EDD_API BSTR EDDInitialise(BSTR ver, BSTR dllfolder, EDDCallBacks requestcallback);		// mandatory
 
-	EDD_API void EDDRefresh(BSTR cmdr, JournalEntry last_je);			// optional, last_je is the last one received. last_je.indexno =-1 if no history is present.
-	EDD_API void EDDNewJournalEntry(JournalEntry nje);		// optional. nje will always be set.  Called when a new Journal Entry received
-	EDD_API void EDDTerminate();					// optional
+	// optional, last_je is the last one received. last_je.indexno =-1 if no history is present.
+	EDD_API void EDDRefresh(BSTR cmdr, JournalEntry last_je);			
+	
+	// optional. nje will always be set.  Called when a new Journal Entry received
+	EDD_API void EDDNewJournalEntry(JournalEntry nje);		
+
+	// optional. Called at EDD termination
+	EDD_API void EDDTerminate();		
 							
-	EDD_API BSTR EDDActionCommand(BSTR action, SAFEARRAY& args);		// optional. Called by Action DLLCall. Always return string. Args could be an empty array.
-	EDD_API void EDDActionJournalEntry(JournalEntry je);		// optional. Called by Action DLLCall to feed a journal entry to you.
+	// optional. Called by Action DLLCall. Args could be an empty array.
+	// Return !errorstring if an error occurs, or +resultstring if all okay (which is placed in Action variable DLLResult).  Do not pass back null
+	EDD_API BSTR EDDActionCommand(BSTR action, SAFEARRAY& args);		
+	
+	// optional. Called by Action DLLCall to feed a journal entry to you.
+	EDD_API void EDDActionJournalEntry(JournalEntry je);		
 }
 

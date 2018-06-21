@@ -215,7 +215,7 @@ EDD_API BSTR EDDActionCommand(BSTR action, SAFEARRAY& args)		// should always re
 		}
 	}
 
-	return SysAllocString(L"DLL Return value");
+	return SysAllocString(L"+DLL Return value");
 }
 
 EDD_API void EDDActionJournalEntry(JournalEntry ptr)
