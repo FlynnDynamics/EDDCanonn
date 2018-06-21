@@ -72,7 +72,9 @@ extern "C"
 	};
 
 	// Anthing passed in COPY it, don't ref it, c# may remove them after the return at any time.
-	// BSTR return values: once passed back, c# owns the BSTR.  It may deallocate at any time.  Best to make a unique copy of the string to pass back.
+	// BSTR return values: once passed back, c# owns the BSTR.  c# insists you use SysAllocString to make the BSTR
+	// DO not pass back any global variables.  Do not use the variable after being passed back.
+	// It may deallocate at any time.  Best to make a unique copy of the string using SysAllocString
 	
 	// Called with EDD version A.B.C.D, return NULL if can't operate, or your version as X.Y.Z.B, or !errorstring to say your unhappy (! indicates error)
 	EDD_API BSTR EDDInitialise(BSTR ver, BSTR dllfolder, EDDCallBacks requestcallback);		// mandatory
