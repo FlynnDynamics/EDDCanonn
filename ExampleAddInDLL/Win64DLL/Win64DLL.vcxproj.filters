@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="READ ME FIRST.txt" />
+    <Text Include="More_info_on_how_to_use_EDDInterface.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DLLPack.act" />

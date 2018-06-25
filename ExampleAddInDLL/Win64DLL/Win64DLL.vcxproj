@@ -169,6 +169,7 @@
     <ClCompile Include="Win64DLL.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="More_info_on_how_to_use_EDDInterface.txt" />
     <Text Include="READ ME FIRST.txt" />
   </ItemGroup>
   <ItemGroup>
