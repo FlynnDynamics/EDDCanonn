@@ -33,29 +33,54 @@ namespace EliteDangerousCore.DLL
         private IntPtr pActionCommand = IntPtr.Zero;
         private IntPtr pConfigParameters = IntPtr.Zero;
 
-        public bool LoadDLL(string path)
+        // for a csharp assembly
+        private dynamic AssemblyMainType;
+
+        public bool Load(string path)
         {
-            if (pDll == IntPtr.Zero)
+            if (pDll == IntPtr.Zero && AssemblyMainType == null)
             {
-                pDll = BaseUtils.Win32.UnsafeNativeMethods.LoadLibrary(path);
+                try
+                {       // try to load csharp assembly  - exception if not a compatible dll
+                    System.Reflection.AssemblyName.GetAssemblyName(path);        // this excepts quicker on C++ DLLs than LoadFrom
 
-                if (pDll != IntPtr.Zero)
-                {
-                    IntPtr peddinit = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDInitialise");
+                    var asm = System.Reflection.Assembly.LoadFrom(path);        // load into our context
 
-                    if (peddinit != IntPtr.Zero)        // must have this to be an EDD DLL
+                    var types = asm.GetTypes();
+
+                    foreach (var type in types)
                     {
-                        Name = System.IO.Path.GetFileNameWithoutExtension(path);
-                        pNewJournalEntry = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDNewJournalEntry");
-                        pActionJournalEntry = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDActionJournalEntry");
-                        pActionCommand = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDActionCommand");
-                        pConfigParameters = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDConfigParameters");
-                        return true;
+                        if (type.FullName.Contains("MainDLL"))          // NOTE assembly dependencies may cause AppDomain.AssemblyResolve - handle it
+                        {
+                            System.Diagnostics.Debug.WriteLine("Type " + type.FullName);
+                            AssemblyMainType = Activator.CreateInstance(type);
+                            Name = System.IO.Path.GetFileNameWithoutExtension(path);
+                            return true;
+                        }
                     }
-                    else
+                }
+                catch
+                {
+                    pDll = BaseUtils.Win32.UnsafeNativeMethods.LoadLibrary(path);
+
+                    if (pDll != IntPtr.Zero)
                     {
-                        BaseUtils.Win32.UnsafeNativeMethods.FreeLibrary(pDll);
-                        pDll = IntPtr.Zero;
+                        IntPtr peddinit = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDInitialise");
+
+                        if (peddinit != IntPtr.Zero)        // must have this to be an EDD DLL
+                        {
+                            Name = System.IO.Path.GetFileNameWithoutExtension(path);
+                            pNewJournalEntry = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDNewJournalEntry");
+                            pActionJournalEntry = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDActionJournalEntry");
+                            pActionCommand = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDActionCommand");
+                            pConfigParameters = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDConfigParameters");
+                            return true;
+                        }
+                        else
+                        {
+                            BaseUtils.Win32.UnsafeNativeMethods.FreeLibrary(pDll);
+                            pDll = IntPtr.Zero;
+                        }
                     }
                 }
             }
@@ -63,35 +88,6 @@ namespace EliteDangerousCore.DLL
             return false;
         }
 
-        dynamic AssemblyMainType;
-
-        public bool LoadAssembly(string path)
-        {
-            try
-            {
-                System.Diagnostics.Debug.WriteLine("Load " + path);
-                var asm = System.Reflection.Assembly.LoadFrom(path);
-
-                var types = asm.GetTypes();
-
-                foreach (var type in types)
-                {
-                    if (type.FullName.Contains("MainDLL"))
-                    {
-                        System.Diagnostics.Debug.WriteLine("Type " + type.FullName);
-                        AssemblyMainType = Activator.CreateInstance(type);
-                        Name = System.IO.Path.GetFileNameWithoutExtension(path);
-                        return true;
-                    }
-                }
-            }
-            catch ( Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("Ass failed " + ex);
-            }
-
-            return false;
-        }
 
         public bool Init(string ourversion, string[] optioninlist, string dllfolder, EDDDLLInterfaces.EDDDLLIF.EDDCallBacks callbacks)
         {
@@ -140,7 +136,11 @@ namespace EliteDangerousCore.DLL
         {
             if (AssemblyMainType != null)
             {
-                Version = AssemblyMainType.EDDTerminate();
+                AssemblyMainType.EDDTerminate();
+                AssemblyMainType = null;
+                Version = null;
+                DLLOptions = null;
+                return true;
             }
             else if (pDll != IntPtr.Zero)
             {
@@ -168,7 +168,10 @@ namespace EliteDangerousCore.DLL
         {
             if (AssemblyMainType != null)
             {
-                AssemblyMainType.EDDRefresh(cmdr, je);
+                if (AssemblyMainType.GetType().GetMethod("EDDRefresh") != null)
+                {
+                    AssemblyMainType.EDDRefresh(cmdr, je);
+                }
             }
             else if (pDll != IntPtr.Zero)
             {
@@ -191,7 +194,10 @@ namespace EliteDangerousCore.DLL
         {
             if (AssemblyMainType != null )
             {
-                AssemblyMainType.EDDNewJournalEntry(nje);
+                if (AssemblyMainType.GetType().GetMethod("EDDNewJournalEntry") != null)
+                {
+                    AssemblyMainType.EDDNewJournalEntry(nje);
+                }
             }
             else if (pDll != IntPtr.Zero && pNewJournalEntry != IntPtr.Zero)
             {
@@ -293,6 +299,5 @@ namespace EliteDangerousCore.DLL
 
             return false;
         }
-
     }
 }

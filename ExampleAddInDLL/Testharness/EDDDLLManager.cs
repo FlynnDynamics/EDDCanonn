@@ -27,16 +27,9 @@ namespace EliteDangerousCore.DLL
         public int Count { get { return DLLs.Count; } }
         public List<EDDDLLCaller> DLLs { get; private set; } = new List<EDDDLLCaller>();
 
-        public Tuple<string, string, string> Load(string assemblydir, string dlldirectory, string ourversion, string[] inoptions, EDDDLLInterfaces.EDDDLLIF.EDDCallBacks callbacks, string allowed)
-        {
-            var a = Load(false, dlldirectory, ourversion, inoptions, callbacks, allowed);
-            var b = Load(true, assemblydir, ourversion, inoptions, callbacks, allowed);
-            return new Tuple<string, string, string>(a.Item1 + b.Item1, a.Item2 + b.Item2, a.Item3 + b.Item3);
-        }
-
         // search directory for *.dll, 
         // return loaded, failed, notallowed
-        public Tuple<string, string, string> Load(bool assembly, string dlldirectory, string ourversion, string[] inoptions, EDDDLLInterfaces.EDDDLLIF.EDDCallBacks callbacks, string allowed)
+        public Tuple<string, string, string> Load(string dlldirectory, string ourversion, string[] inoptions, EDDDLLInterfaces.EDDDLLIF.EDDCallBacks callbacks, string allowed)
         {
             string loaded = "";
             string failed = "";
@@ -58,7 +51,7 @@ namespace EliteDangerousCore.DLL
 
                     System.Diagnostics.Debug.WriteLine("Try to load " + f.FullName);
                     
-                    if (assembly ? caller.LoadAssembly(f.FullName) : caller.LoadDLL(f.FullName))        // if loaded okay
+                    if (caller.Load(f.FullName))        // if loaded okay
                     {
                         if (allowed.Equals("All", StringComparison.InvariantCultureIgnoreCase) || allowedfiles.Contains(filename, StringComparer.InvariantCultureIgnoreCase))    // if allowed..
                         {

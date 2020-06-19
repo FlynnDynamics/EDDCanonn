@@ -109,15 +109,16 @@ namespace EDDDLLInterfaces
 
         // Manadatory
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void EDDTerminate();
+
+        // Optional
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void EDDRefresh([MarshalAs(UnmanagedType.BStr)]string cmdname, JournalEntry lastje);
 
-        // Manadatory
+        // Optional
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void EDDNewJournalEntry(JournalEntry nje);
 
-        // Manadatory
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void EDDTerminate();
 
         // Optional DLLCall in Action causes this
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]            

@@ -23,36 +23,8 @@ namespace CHash
         {
             InitializeComponent();
 
-            AppDomain.CurrentDomain.AssemblyResolve += (s, args) =>
-            {
-                if (args.Name.Contains(".resources"))
-                    return null;
-
-                // check for assemblies already loaded
-                Assembly assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name);
-                if (assembly != null)
-                    return assembly;
-
-                string filename = args.Name.Split(',')[0] + ".dll".ToLower();
-
-                FileInfo[] find = Directory.EnumerateFiles(csharpappdata, filename, SearchOption.AllDirectories).Select(f => new FileInfo(f)).OrderBy(p => p.LastWriteTime).ToArray();
-
-                if (find.Length == 1)
-                {
-                    try
-                    {
-                        System.Diagnostics.Debug.WriteLine("Resolved " + filename + " from " + find[0].FullName);
-                        return System.Reflection.Assembly.LoadFrom(find[0].FullName);
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine("UnResolved " + filename + " from " + find[0].FullName);
-                    }
-
-                }
-                return null;
-            };
-
+            EDDDLLAssemblyFinder.AssemblyFindPath = csharpappdata;
+            AppDomain.CurrentDomain.AssemblyResolve += EDDDLLAssemblyFinder.AssemblyResolve;
         }
 
         public bool RequestHistory(long index, bool isjid, out EDDDLLInterfaces.EDDDLLIF.JournalEntry f)
@@ -122,12 +94,12 @@ namespace CHash
                 callbacks.GetShipLoadout = GetShipLoadout;
 
                 //var r = mgr.Load(@"..\..\..\win64dll\bin\debug", "1.2.3.4", new string[] { "HOSTNAME=TESTHARNESS","JOURNALVERSION=2" }, @"c:\code", callbacks, "All");
-                var r = mgr.Load(false, @"..\..\..\x64\debug", "1.2.3.4", new string[] { "HOSTNAME=TESTHARNESS", "JOURNALVERSION=2" }, callbacks, "All");
+                var r = mgr.Load(@"..\..\..\x64\debug", "1.2.3.4", new string[] { "HOSTNAME=TESTHARNESS", "JOURNALVERSION=2" }, callbacks, "All");
                 richTextBox1.Text += "DLL Loaded: " + r.Item1 + Environment.NewLine;
                 richTextBox1.Text += "DLL Failed: " + r.Item2 + Environment.NewLine;
                 richTextBox1.Text += "DLL Not Allowed: " + r.Item3 + Environment.NewLine;
 
-                var r2 = mgr.Load(true, csharpappdata, "1.2.3.4", new string[] { "HOSTNAME=TESTHARNESS", "JOURNALVERSION=2" }, callbacks, "All");
+                var r2 = mgr.Load(csharpappdata, "1.2.3.4", new string[] { "HOSTNAME=TESTHARNESS", "JOURNALVERSION=2" }, callbacks, "All");
                 richTextBox1.Text += "CSDLL Loaded: " + r2.Item1 + Environment.NewLine;
                 richTextBox1.Text += "CSDLL Failed: " + r2.Item2 + Environment.NewLine;
                 richTextBox1.Text += "CSDLL Not Allowed: " + r2.Item3 + Environment.NewLine;
