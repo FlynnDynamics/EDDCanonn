@@ -29,6 +29,9 @@ namespace EliteDangerousCore.DLL
 
         // search directory for *.dll, 
         // return loaded, failed, notallowed
+        // all Csharp assembly DLLs are loaded - only ones implementing *EDDClass class causes it to be added to the DLL list
+        // only normal DLLs implementing EDDInitialise are kept loaded
+
         public Tuple<string, string, string> Load(string dlldirectory, string ourversion, string[] inoptions, EDDDLLInterfaces.EDDDLLIF.EDDCallBacks callbacks, string allowed)
         {
             string loaded = "";

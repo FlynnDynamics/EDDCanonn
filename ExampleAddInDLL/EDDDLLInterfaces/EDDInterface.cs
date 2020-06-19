@@ -93,6 +93,11 @@ namespace EDDDLLInterfaces
 
         }
 
+        // c# assemblies implement the following functions inside a class named *MainDLL.  This is the class which is instanced
+        // and gets EDDInitialise, EDDTerminate etc called on it with the parameters as below.
+
+        // C++ DLLs implement these functions with the types indicated in the MarshalAs
+
         // Manadatory
         // vstr = Host Vnum [;InOptions]..
         //      HOSTNAME=x

@@ -9,11 +9,9 @@ using Dependency;
 
 namespace CSharpDLL
 {
-
-
-    public class MainDLL
+    public class EDDClass
     {
-        public MainDLL()
+        public EDDClass()
         {
             System.Diagnostics.Debug.WriteLine("Made DLL instance");
             var x = new Class1();

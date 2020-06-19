@@ -44,13 +44,13 @@ namespace EliteDangerousCore.DLL
                 {       // try to load csharp assembly  - exception if not a compatible dll
                     System.Reflection.AssemblyName.GetAssemblyName(path);        // this excepts quicker on C++ DLLs than LoadFrom
 
-                    var asm = System.Reflection.Assembly.LoadFrom(path);        // load into our context
+                    var asm = System.Reflection.Assembly.LoadFrom(path);        // load into our context - we load all assemblies in the folder
 
                     var types = asm.GetTypes();
 
-                    foreach (var type in types)
+                    foreach (var type in types)         // NOTE assembly dependencies may cause AppDomain.AssemblyResolve - handle it
                     {
-                        if (type.FullName.Contains("MainDLL"))          // NOTE assembly dependencies may cause AppDomain.AssemblyResolve - handle it
+                        if (type.IsClass && type.FullName.EndsWith("EDDClass"))          
                         {
                             System.Diagnostics.Debug.WriteLine("Type " + type.FullName);
                             AssemblyMainType = Activator.CreateInstance(type);
