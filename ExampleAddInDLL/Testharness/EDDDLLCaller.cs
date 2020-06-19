@@ -115,7 +115,10 @@ namespace EliteDangerousCore.DLL
                 var list = Version.Split(';');
                 Version = list[0];
                 if (list.Length > 1)
-                    Array.Copy(list, 0, DLLOptions, 0, list.Length - 1);
+                {
+                    DLLOptions = new string[list.Length-1];
+                    Array.Copy(list, 1, DLLOptions, 0, list.Length - 1);
+                }
                 else
                     DLLOptions = new string[] { };
                 return true;

@@ -104,7 +104,7 @@ namespace EDDDLLInterfaces
         //      JOURNALVERSION=x
         // return !errorstring || DLLVNumber [;RetOptions]..
         // DLLVnumber = 0.0.0.0
-        //      PLAYSTARTEVENTS - play the start events on Commander refresh Fileheader, Commander, Materials, LoadGame, Rank, Progress, reputation, EngineerProgress, Location, Missions
+        //     PLAYLASTFILELOAD - play the start events on Commander refresh Fileheader, Commander, Materials, LoadGame, Rank, Progress, reputation, EngineerProgress, Location, Missions
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.BStr)]     
