@@ -34,17 +34,32 @@ void WriteJournalEntry(JournalEntry ptr)
 		return;
 	}
 
-	int const arraysize = 30000;
+	int const arraysize = 100000;
 	TCHAR buffer[arraysize];
 	size_t cbDest = arraysize * sizeof(TCHAR);
 
-	LPCTSTR pszFormat = TEXT("%s: %d:%s :'%s' '%s' '%s' : sys %s\nx%f y%f z%f | td%f ts%u | %d %d | loc '%s' st '%s' gm %s grp %s | %d cr | jid %d rec %d\n");
-	StringCbPrintfW(buffer, cbDest, pszFormat,
-		ptr.utctime, ptr.indexno, ptr.eventid,
-		ptr.name, ptr.info, ptr.detailedinfo,
-		ptr.systemname,
-		ptr.x, ptr.y, ptr.z, ptr.travelleddistance, ptr.travelledseconds, ptr.islanded ? 1 : 0, ptr.isdocked ? 1 : 0, ptr.whereami, ptr.shiptype, ptr.gamemode, ptr.group, ptr.credits,
-		ptr.jid, ptr.totalrecords);
+	if (ptr.ver == 1)
+	{
+		LPCTSTR pszFormat = TEXT("V%d : %s: %d:%s :'%s' '%s' '%s' : sys %s\nx%f y%f z%f | td%f ts%u | %d %d | loc '%s' st '%s' gm %s grp %s | %d cr | jid %d rec %d\n");
+		StringCbPrintfW(buffer, cbDest, pszFormat,
+			ptr.ver,
+			ptr.utctime, ptr.indexno, ptr.eventid,
+			ptr.name, ptr.info, ptr.detailedinfo,
+			ptr.systemname,
+			ptr.x, ptr.y, ptr.z, ptr.travelleddistance, ptr.travelledseconds, ptr.islanded ? 1 : 0, ptr.isdocked ? 1 : 0, ptr.whereami, ptr.shiptype, ptr.gamemode, ptr.group, ptr.credits,
+			ptr.jid, ptr.totalrecords);
+	}
+	else
+	{
+		LPCTSTR pszFormat = TEXT("V%d : %s: %d:%s :'%s' '%s' '%s' : sys %s\nx%f y%f z%f | td%f ts%u | %d %d | loc '%s' st '%s' gm %s grp %s | %d cr | jid %d rec %d\nJSON:%s\nCmdr %s\n");
+		StringCbPrintfW(buffer, cbDest, pszFormat,
+			ptr.ver,
+			ptr.utctime, ptr.indexno, ptr.eventid,
+			ptr.name, ptr.info, ptr.detailedinfo,
+			ptr.systemname,
+			ptr.x, ptr.y, ptr.z, ptr.travelleddistance, ptr.travelledseconds, ptr.islanded ? 1 : 0, ptr.isdocked ? 1 : 0, ptr.whereami, ptr.shiptype, ptr.gamemode, ptr.group, ptr.credits,
+			ptr.jid, ptr.totalrecords , ptr.json, ptr.cmdrname);
+	}
 
 	//int of = offsetof(NewJournalEntry, whereami);
 	//StringCbPrintfW(buffer, cbDest, L"%d", of);

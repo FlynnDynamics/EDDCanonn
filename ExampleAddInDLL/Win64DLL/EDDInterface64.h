@@ -50,6 +50,18 @@ extern "C"
 		long long jid;					// jid of event
 		long totalrecords;				// number of records 
 		// Version 1 ends
+
+		BSTR json;
+		BSTR cmdrname;
+		BSTR cmdrfid;
+		BSTR shipident;
+		BSTR shipname;
+		long hullvalue;		
+		long rebuy;
+		long modulesvalue;		
+		bool stored;
+
+		// Version 2 ends
 	};
 
 	// request history.  if isjid=false, 1 = first entry, to end entry.  If isjid=true, its the jid number.
@@ -61,14 +73,22 @@ extern "C"
 	// to pick the event up and send it to an action program.  You can pass in a list of variables for the action program in the second string
 	// use unique names, patterned after your DLL name.  
 	// You may issue standard events, but you'll have to make sure all of the multitude of variables are set for other packs to use them properly.
-	typedef bool (*EDDRunAction)(BSTR eventname, BSTR parameters); // parameters in format v="k",v2="k" or an empty string
+	typedef bool(*EDDRunAction)(BSTR eventname, BSTR parameters); // parameters in format v="k",v2="k" or an empty string
+
+	// Request the ship json loadout
+
+	typedef bool(*EDDGetShipLoadout)(BSTR shipnameordefault); // empty string = current ship, or ship ident, or ship type
 
 	struct EDDCallBacks
 	{
-		int ver;			// version of this structure = 1. Order critical.
+		int ver;			// version of this structure . Order critical.
 		EDDRequestHistory RequestHistory;		// may be null - check
 		EDDRunAction RunAction;					// may be null - check
 		// Version 1 ends
+
+		EDDGetShipLoadout GetShipLoadout;
+
+		// Version 2 ends
 	};
 
 	// Anthing passed in COPY it, don't ref it, c# may remove them after the return at any time.
