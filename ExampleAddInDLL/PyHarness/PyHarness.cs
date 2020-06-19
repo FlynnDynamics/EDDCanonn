@@ -33,6 +33,8 @@ namespace PyHarness
         public void EDDTerminate()
         {
             System.Diagnostics.Debug.WriteLine("Unload");
+            DeleteFileNoError(storedout);
+            DeleteFileNoError(currentout);
         }
 
         public void EDDNewJournalEntry(EDDDLLInterfaces.EDDDLLIF.JournalEntry je)
