@@ -21,20 +21,25 @@ namespace PyHarness
 
         public string EDDInitialise(string vstr, string dllfolderp, EDDDLLInterfaces.EDDDLLIF.EDDCallBacks cb)
         {
+            string[] vopts = vstr.Split(';');
+            int jv = vopts.ContainsIn("JOURNALVERSION=2");
+            if (jv == -1 || vopts[jv].Substring(15).InvariantParseInt(0) < 2)       // check journal version exists and is at 2 mininum
+                return "!PY Harness requires a more recent host program";
+
             System.Diagnostics.Debug.WriteLine("Init func " + vstr + " " + dllfolderp);
             callbacks = cb;
             storedout = Path.Combine(dllfolderp, "Stored.log");
             currentout = Path.Combine(dllfolderp, "Current.log");
-            DeleteFileNoError(storedout);
-            DeleteFileNoError(currentout);
+            BaseUtils.DeleteFileNoError(storedout);
+            BaseUtils.DeleteFileNoError(currentout);
             return "1.0.0.0;PLAYLASTFILELOAD";
         }
 
         public void EDDTerminate()
         {
             System.Diagnostics.Debug.WriteLine("Unload");
-            DeleteFileNoError(storedout);
-            DeleteFileNoError(currentout);
+            BaseUtils.DeleteFileNoError(storedout);
+            BaseUtils.DeleteFileNoError(currentout);
         }
 
         public void EDDNewJournalEntry(EDDDLLInterfaces.EDDDLLIF.JournalEntry je)
@@ -44,18 +49,6 @@ namespace PyHarness
             var s = File.AppendText(filetoadd);
             s.WriteLine(je.json);
             s.Close();
-        }
-
-        public static void DeleteFileNoError(string path)
-        {
-            try
-            {
-                File.Delete(path);
-            }
-            catch
-            {       // on purpose no error - thats the point of it
-                //System.Diagnostics.Debug.WriteLine("Exception " + ex);
-            }
         }
 
     }

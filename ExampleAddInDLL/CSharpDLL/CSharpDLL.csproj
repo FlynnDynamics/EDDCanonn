@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EDDDLLInterfaces, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\EDDDLLInterfaces\EDDDLLInterfaces.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -48,10 +52,6 @@
     <ProjectReference Include="..\Dependency\Dependency.csproj">
       <Project>{63397839-86a0-4ef3-8326-78a72e15f5b9}</Project>
       <Name>Dependency</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EDDDLLInterfaces\EDDDLLInterfaces.csproj">
-      <Project>{829041b1-d4a5-48d9-8260-b5eeff28bcd8}</Project>
-      <Name>EDDDLLInterfaces</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

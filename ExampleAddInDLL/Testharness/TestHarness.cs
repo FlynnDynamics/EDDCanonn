@@ -93,99 +93,24 @@ namespace CHash
                 callbacks.RunAction = RunAction;
                 callbacks.GetShipLoadout = GetShipLoadout;
 
+                string[] options = new string[] { EDDDLLInterfaces.EDDDLLIF.FLAG_HOSTNAME + "EDLITE",
+                                              EDDDLLInterfaces.EDDDLLIF.FLAG_JOURNALVERSION + "2",
+                                              EDDDLLInterfaces.EDDDLLIF.FLAG_CALLBACKVERSION + "2",
+                                            };
+                
                 //var r = mgr.Load(@"..\..\..\win64dll\bin\debug", "1.2.3.4", new string[] { "HOSTNAME=TESTHARNESS","JOURNALVERSION=2" }, @"c:\code", callbacks, "All");
-                var r = mgr.Load(@"..\..\..\x64\debug", "1.2.3.4", new string[] { "HOSTNAME=TESTHARNESS", "JOURNALVERSION=2" }, callbacks, "All");
+                var r = mgr.Load(@"..\..\..\x64\debug", "1.2.3.4", options , callbacks, "All");
                 richTextBox1.Text += "DLL Loaded: " + r.Item1 + Environment.NewLine;
                 richTextBox1.Text += "DLL Failed: " + r.Item2 + Environment.NewLine;
                 richTextBox1.Text += "DLL Not Allowed: " + r.Item3 + Environment.NewLine;
 
-                var r2 = mgr.Load(csharpappdata, "1.2.3.4", new string[] { "HOSTNAME=TESTHARNESS", "JOURNALVERSION=2" }, callbacks, "All");
+                var r2 = mgr.Load(csharpappdata, "1.2.3.4", options, callbacks, "All");
                 richTextBox1.Text += "CSDLL Loaded: " + r2.Item1 + Environment.NewLine;
                 richTextBox1.Text += "CSDLL Failed: " + r2.Item2 + Environment.NewLine;
                 richTextBox1.Text += "CSDLL Not Allowed: " + r2.Item3 + Environment.NewLine;
             }
             else
                 richTextBox1.Text += "Already loaded" + Environment.NewLine;
-
-            //string appdata = @"..\..\..\appdata";
-            //FileInfo[] allFiles = Directory.EnumerateFiles(appdata, "*.dll", SearchOption.TopDirectoryOnly).Select(f => new FileInfo(f)).OrderBy(p => p.LastWriteTime).ToArray();
-
-            //var loadedassembly = AppDomain.CurrentDomain.GetAssemblies();
-            //foreach (var x in loadedassembly)
-            //{
-            //    System.Diagnostics.Debug.WriteLine("Initially: " + x.FullName);
-            //}
-
-            //AppDomain.CurrentDomain.AssemblyResolve += (s,args) => 
-            //{
-            //    if (args.Name.Contains(".resources"))
-            //        return null;
-
-            //    // check for assemblies already loaded
-            //    Assembly assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name);
-            //    if (assembly != null)
-            //        return assembly;
-
-            //    string filename = args.Name.Split(',')[0] + ".dll".ToLower();
-
-            //    FileInfo[] find = Directory.EnumerateFiles(appdata, filename, SearchOption.AllDirectories).Select(f => new FileInfo(f)).OrderBy(p => p.LastWriteTime).ToArray();
-
-            //    if ( find.Length==1)
-            //    {
-            //        try
-            //        {
-            //            System.Diagnostics.Debug.WriteLine("Resolved " + filename + " from " + find[0].FullName);
-            //            return System.Reflection.Assembly.LoadFrom(find[0].FullName);
-            //        }
-            //        catch (Exception ex)
-            //        {
-            //        }
-
-            //    }
-            //    return null;
-            //};
-
-            //foreach (FileInfo f in allFiles)
-            //{
-            //    try
-            //    {
-            //        System.Diagnostics.Debug.WriteLine("Load " + f.FullName);
-            //        var asm = Assembly.LoadFrom(f.FullName);
-
-            //        var types = asm.GetTypes();
-
-            //        foreach (var type in types)
-            //        {
-            //            System.Diagnostics.Debug.WriteLine("Type " + type.FullName);
-            //            if ( type.FullName.Contains("MainDLL"))
-            //            {
-            //                var x = Activator.CreateInstance(type);
-            //            }
-            //        }
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        var msg = $"Unable to load add-in assembly: {Path.GetFileNameWithoutExtension(f.FullName)}";
-            //        System.Diagnostics.Debug.WriteLine(msg);
-            //    }
-            //}
-
-            //foreach ( var s in dlls)
-            //{
-            //    System.Diagnostics.Debug.WriteLine("Loading " + s.Item1 + " from " + s.Item2);
-
-            //    try
-            //    {
-            //        curdllfolder = s.Item2;
-            //        Assembly.Load(s.Item1);
-            //    }
-            //    catch( Exception ex )
-            //    {
-            //        System.Diagnostics.Debug.WriteLine(ex);
-            //    }
-            //}
-            //List<Tuple<string, string>> dlls = new List<Tuple<string, string>>();
-
         }
 
         private void buttonStop_Click(object sender, EventArgs e)
