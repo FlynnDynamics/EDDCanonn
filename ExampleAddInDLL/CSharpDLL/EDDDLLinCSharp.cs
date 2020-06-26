@@ -52,6 +52,11 @@ namespace CSharpDLL
             System.Diagnostics.Debug.WriteLine("EDD Action journal entry");
         }
 
+        public void EDDNewUIEvent(string json)
+        {
+            System.Diagnostics.Debug.WriteLine("EDD UI Event" + json);
+        }
+
         public string[] EDDConfigParameters(string[] values)
         {
             return new string[] { "One", "One-Value", "string" };
