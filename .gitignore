@@ -12,6 +12,6 @@ x64
 /test
 Thumbs.db
 */Properties/ExtraVersion.cs
-appdata/*.dll
+*/appdata/*.dll
 
 
