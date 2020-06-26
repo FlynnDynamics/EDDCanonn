@@ -173,6 +173,12 @@ EDD_API void EDDNewJournalEntry(JournalEntry ptr)
 	WriteJournalEntry(ptr);
 }
 
+EDD_API void EDDNewUIEvent(BSTR str)
+{
+	WriteASCII("NewUIEvent:\n");
+	WriteUnicode(str);
+}
+
 
 EDD_API void EDDTerminate()
 {

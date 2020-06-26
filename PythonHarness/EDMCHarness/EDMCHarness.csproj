@@ -7,8 +7,8 @@
     <ProjectGuid>{CD9D2307-101D-47B3-BFBE-A438B10DA1C9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PyHarness</RootNamespace>
-    <AssemblyName>PyHarness</AssemblyName>
+    <RootNamespace>EDMCHarness</RootNamespace>
+    <AssemblyName>EDMCHarness</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -46,11 +46,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseUtils.cs" />
-    <Compile Include="PyHarness.cs" />
+    <Compile Include="EDMCHarness.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PythonLauncher.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy edmcharness.dll %25LOCALAPPDATA%25\EDDLite\DLL</PostBuildEvent>
+  </PropertyGroup>
 </Project>

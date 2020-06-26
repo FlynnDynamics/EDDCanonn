@@ -53,7 +53,7 @@ namespace EliteDangerousCore.DLL
                     EDDDLLCaller caller = new EDDDLLCaller();
 
                     System.Diagnostics.Debug.WriteLine("Try to load " + f.FullName);
-                    
+
                     if (caller.Load(f.FullName))        // if loaded okay
                     {
                         if (allowed.Equals("All", StringComparison.InvariantCultureIgnoreCase) || allowedfiles.Contains(filename, StringComparer.InvariantCultureIgnoreCase))    // if allowed..
@@ -98,11 +98,19 @@ namespace EliteDangerousCore.DLL
             }
         }
 
-        public void NewJournalEntry(EDDDLLInterfaces.EDDDLLIF.JournalEntry nje)
+        public void NewJournalEntry(EDDDLLInterfaces.EDDDLLIF.JournalEntry nje, bool stored)
         {
             foreach (EDDDLLCaller caller in DLLs)
             {
-                caller.NewJournalEntry(nje);
+                caller.NewJournalEntry(nje, stored);
+            }
+        }
+
+        public void NewUIEvent(string json)
+        {
+            foreach (EDDDLLCaller caller in DLLs)
+            {
+                caller.NewUIEvent(json);
             }
         }
 

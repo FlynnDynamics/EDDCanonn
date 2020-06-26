@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PyHarness
 {
-    static class BaseUtils  // copied from base utils, so we don't have to get into that dependency stuff
+    static class BaseUtilsHelpers  // copied from base utils, so we don't have to get into that dependency stuff
     {
         public static void DeleteFileNoError(string path)
         {
@@ -44,6 +44,20 @@ namespace PyHarness
         {
             int i;
             return int.TryParse(s, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out i) ? i : def;
+        }
+
+        public static string ToStringZulu(this DateTime dt)     // zulu warrior format web style
+        {
+            if (dt.Millisecond != 0)
+                return dt.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+            else
+                return dt.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'");
+
+        }
+
+        public static DateTime Truncate(this DateTime date, long resolution)
+        {
+            return new DateTime(date.Ticks - (date.Ticks % resolution), date.Kind);
         }
 
 

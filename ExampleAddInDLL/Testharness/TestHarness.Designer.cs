@@ -36,6 +36,7 @@
             this.buttonRefresh = new System.Windows.Forms.Button();
             this.buttonConfig = new System.Windows.Forms.Button();
             this.buttonAJE = new System.Windows.Forms.Button();
+            this.buttonUIEvent = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // buttonStart
@@ -116,12 +117,23 @@
             this.buttonAJE.UseVisualStyleBackColor = true;
             this.buttonAJE.Click += new System.EventHandler(this.buttonAJE_Click);
             // 
+            // buttonUIEvent
+            // 
+            this.buttonUIEvent.Location = new System.Drawing.Point(499, 57);
+            this.buttonUIEvent.Name = "buttonUIEvent";
+            this.buttonUIEvent.Size = new System.Drawing.Size(75, 23);
+            this.buttonUIEvent.TabIndex = 1;
+            this.buttonUIEvent.Text = "UIEvent";
+            this.buttonUIEvent.UseVisualStyleBackColor = true;
+            this.buttonUIEvent.Click += new System.EventHandler(this.buttonUIEvent_Click);
+            // 
             // TestHarness
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(694, 480);
             this.Controls.Add(this.richTextBox1);
+            this.Controls.Add(this.buttonUIEvent);
             this.Controls.Add(this.buttonConfig);
             this.Controls.Add(this.buttonAJE);
             this.Controls.Add(this.buttonRefresh);
@@ -145,6 +157,7 @@
         private System.Windows.Forms.Button buttonRefresh;
         private System.Windows.Forms.Button buttonConfig;
         private System.Windows.Forms.Button buttonAJE;
+        private System.Windows.Forms.Button buttonUIEvent;
     }
 }
 

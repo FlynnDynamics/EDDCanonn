@@ -103,7 +103,10 @@ extern "C"
 	EDD_API void EDDRefresh(BSTR cmdr, JournalEntry last_je);			
 	
 	// optional. nje will always be set.  Called when a new Journal Entry received
-	EDD_API void EDDNewJournalEntry(JournalEntry nje);		
+	EDD_API void EDDNewJournalEntry(JournalEntry nje);
+
+	// optional. 
+	EDD_API void EDDNewUIEvent(BSTR json);		// see EliteDangerousCore::UI for json fields.
 
 	// optional. Called at EDD termination
 	EDD_API void EDDTerminate();		

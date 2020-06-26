@@ -156,7 +156,7 @@ namespace CHash
             nje.rebuy = 5000;
             nje.stored = false;
 
-            mgr.NewJournalEntry(nje);
+            mgr.NewJournalEntry(nje, false);
 
             richTextBox1.Text += "NJE" + Environment.NewLine;
         }
@@ -258,6 +258,11 @@ namespace CHash
 
             richTextBox1.Text += "Action JE" + Environment.NewLine;
 
+        }
+
+        private void buttonUIEvent_Click(object sender, EventArgs e)
+        {
+            mgr.NewUIEvent("Test json");
         }
     }
 }

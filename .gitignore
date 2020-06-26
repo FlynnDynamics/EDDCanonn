@@ -11,8 +11,7 @@ x64
 *.ncrunch*
 /test
 Thumbs.db
-#Visual Studio 2015r2+ IntelliSense SQLite db and lockfile
-/EDDiscovery.VC.db
-/EDDiscovery.VC.VC.opendb
 */Properties/ExtraVersion.cs
-appdata
+appdata/*.dll
+
+

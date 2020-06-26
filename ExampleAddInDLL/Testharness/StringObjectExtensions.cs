@@ -550,6 +550,19 @@ public static class ObjectExtensionsStrings
         return null;
     }
 
+    public static int ContainsIn(this IEnumerable<string> list, string comparision, StringComparison c = StringComparison.CurrentCulture)        //extend for case
+    {
+        int i = 0;
+        foreach (var s in list)
+        {
+            if (s.Contains(comparision, c))
+                return i;
+
+            i++;
+        }
+
+        return -1;
+    }
 
 
 }

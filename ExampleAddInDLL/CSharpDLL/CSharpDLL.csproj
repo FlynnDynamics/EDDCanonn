@@ -55,4 +55,9 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy csharpdll.dll ..\..\appdata
+copy dependency.dll ..\..\appdata
+</PostBuildEvent>
+  </PropertyGroup>
 </Project>

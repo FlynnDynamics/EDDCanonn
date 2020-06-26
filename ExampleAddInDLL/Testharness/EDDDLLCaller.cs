@@ -32,6 +32,7 @@ namespace EliteDangerousCore.DLL
         private IntPtr pActionJournalEntry = IntPtr.Zero;
         private IntPtr pActionCommand = IntPtr.Zero;
         private IntPtr pConfigParameters = IntPtr.Zero;
+        private IntPtr pNewUIEvent = IntPtr.Zero;
 
         // for a csharp assembly
         private dynamic AssemblyMainType;
@@ -50,7 +51,7 @@ namespace EliteDangerousCore.DLL
 
                     foreach (var type in types)         // NOTE assembly dependencies may cause AppDomain.AssemblyResolve - handle it
                     {
-                        if (type.IsClass && type.FullName.EndsWith("EDDClass"))          
+                        if (type.IsClass && type.FullName.EndsWith("EDDClass"))
                         {
                             System.Diagnostics.Debug.WriteLine("Type " + type.FullName);
                             AssemblyMainType = Activator.CreateInstance(type);
@@ -74,6 +75,7 @@ namespace EliteDangerousCore.DLL
                             pActionJournalEntry = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDActionJournalEntry");
                             pActionCommand = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDActionCommand");
                             pConfigParameters = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDConfigParameters");
+                            pNewUIEvent = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDNewUIEvent");
                             return true;
                         }
                         else
@@ -108,7 +110,7 @@ namespace EliteDangerousCore.DLL
             else
                 Version = "!";
 
-            bool ok = Version!= null && Version.Length > 0 && Version[0] != '!';
+            bool ok = Version != null && Version.Length > 0 && Version[0] != '!';
 
             if (ok)
             {
@@ -116,7 +118,7 @@ namespace EliteDangerousCore.DLL
                 Version = list[0];
                 if (list.Length > 1)
                 {
-                    DLLOptions = new string[list.Length-1];
+                    DLLOptions = new string[list.Length - 1];
                     Array.Copy(list, 1, DLLOptions, 0, list.Length - 1);
                 }
                 else
@@ -193,9 +195,12 @@ namespace EliteDangerousCore.DLL
             return false;
         }
 
-        public bool NewJournalEntry(EDDDLLInterfaces.EDDDLLIF.JournalEntry nje)
+        public bool NewJournalEntry(EDDDLLInterfaces.EDDDLLIF.JournalEntry nje, bool stored)
         {
-            if (AssemblyMainType != null )
+            if (stored && DLLOptions.ContainsIn(EDDDLLInterfaces.EDDDLLIF.FLAG_PLAYLASTFILELOAD) < 0)
+                return false;
+
+            if (AssemblyMainType != null)
             {
                 if (AssemblyMainType.GetType().GetMethod("EDDNewJournalEntry") != null)
                 {
@@ -281,7 +286,7 @@ namespace EliteDangerousCore.DLL
             return null;
         }
 
-        public bool SetConfig(string [] paras)
+        public bool SetConfig(string[] paras)
         {
             if (AssemblyMainType != null)
             {
@@ -302,5 +307,28 @@ namespace EliteDangerousCore.DLL
 
             return false;
         }
+
+        public bool NewUIEvent(string json)
+        {
+            if (AssemblyMainType != null)
+            {
+                if (AssemblyMainType.GetType().GetMethod("EDDNewUIEvent") != null)
+                {
+                    AssemblyMainType.EDDNewUIEvent(json);
+                }
+            }
+            else if (pDll != IntPtr.Zero && pNewUIEvent != IntPtr.Zero)
+            {
+                EDDDLLInterfaces.EDDDLLIF.EDDNewUIEvent newui = (EDDDLLInterfaces.EDDDLLIF.EDDNewUIEvent)Marshal.GetDelegateForFunctionPointer(
+                                                                                    pNewUIEvent,
+                                                                                    typeof(EDDDLLInterfaces.EDDDLLIF.EDDNewUIEvent));
+                newui(json);
+                return true;
+            }
+
+            return false;
+        }
+
+
     }
 }
