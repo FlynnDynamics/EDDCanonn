@@ -14,7 +14,7 @@ namespace CSharpDLL
         public EDDClass()
         {
             System.Diagnostics.Debug.WriteLine("Made DLL instance");
-            var x = new Class1();
+            //var x = new Class1();
         }
 
         EDDDLLInterfaces.EDDDLLIF.EDDCallBacks callbacks;
@@ -22,6 +22,7 @@ namespace CSharpDLL
         public string EDDInitialise(string vstr, string dllfolder, EDDDLLInterfaces.EDDDLLIF.EDDCallBacks cb)
         {
             System.Diagnostics.Debug.WriteLine("Init func " + vstr + " " + dllfolder);
+            System.IO.File.AppendAllText(@"c:\code\csharpdll.txt", Environment.NewLine + "Init " + vstr + " in " + dllfolder + Environment.NewLine);
             callbacks = cb;
             return "1.0.0.0";
         }
@@ -39,6 +40,7 @@ namespace CSharpDLL
         public void EDDNewJournalEntry(EDDDLLInterfaces.EDDDLLIF.JournalEntry je)
         {
             System.Diagnostics.Debug.WriteLine("New Journal Entry " + je.utctime);
+            System.IO.File.AppendAllText(@"c:\code\csharpdll.txt", "NJE " + je.json + Environment.NewLine);
         }
 
         public string EDDActionCommand(string cmdname, string[] paras)
@@ -55,6 +57,7 @@ namespace CSharpDLL
         public void EDDNewUIEvent(string json)
         {
             System.Diagnostics.Debug.WriteLine("EDD UI Event" + json);
+            System.IO.File.AppendAllText(@"c:\code\csharpdll.txt", "UI " + json + Environment.NewLine);
         }
 
         public string[] EDDConfigParameters(string[] values)
