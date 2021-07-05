@@ -23,13 +23,13 @@ namespace CHash
         {
             InitializeComponent();
 
-            EDDDLLAssemblyFinder.AssemblyFindPath = csharpappdata;
+            EDDDLLAssemblyFinder.AssemblyFindPaths.Add(csharpappdata);
             AppDomain.CurrentDomain.AssemblyResolve += EDDDLLAssemblyFinder.AssemblyResolve;
         }
 
         public bool RequestHistory(long index, bool isjid, out EDDDLLInterfaces.EDDDLLIF.JournalEntry f)
         {
-            EDDDLLInterfaces.EDDDLLIF.JournalEntry nje = new EDDDLLInterfaces.EDDDLLIF.JournalEntry() { ver = 2, indexno = 19 };
+            EDDDLLInterfaces.EDDDLLIF.JournalEntry nje = new EDDDLLInterfaces.EDDDLLIF.JournalEntry() { ver = 3, indexno = 19 };
 
             nje.utctime = DateTime.UtcNow.ToString();
             nje.name = "EventSummary!";
@@ -60,10 +60,12 @@ namespace CHash
             nje.cmdrfid = "F19292";
             nje.shipident = "Y-1929";
             nje.shipname = "Julia";
-            nje.hullvalue = 200000;
-            nje.modulesvalue = 20000;
-            nje.rebuy = 5000;
-            nje.stored = false;
+            //nje.hullvalue = 200000;
+            //nje.modulesvalue = 20000;
+            //nje.rebuy = 5000;
+            //nje.stored = false;
+      //      nje.travelstate = "Travelling";
+      //      nje.microresources = new string[] { "MR1", "MR2" };
 
             f = nje;
 
@@ -97,14 +99,15 @@ namespace CHash
                                               EDDDLLInterfaces.EDDDLLIF.FLAG_JOURNALVERSION + "2",
                                               EDDDLLInterfaces.EDDDLLIF.FLAG_CALLBACKVERSION + "2",
                                             };
-                
+
                 //var r = mgr.Load(@"..\..\..\win64dll\bin\debug", "1.2.3.4", new string[] { "HOSTNAME=TESTHARNESS","JOURNALVERSION=2" }, @"c:\code", callbacks, "All");
-                var r = mgr.Load(@"..\..\..\x64\debug", "1.2.3.4", options , callbacks, "All");
+                string allow = "All";
+                var r = mgr.Load(new string[] { @"..\..\..\x64\debug" }, new bool[] { false }, "1.2.3.4", options , callbacks, ref allow);
                 richTextBox1.Text += "DLL Loaded: " + r.Item1 + Environment.NewLine;
                 richTextBox1.Text += "DLL Failed: " + r.Item2 + Environment.NewLine;
                 richTextBox1.Text += "DLL Not Allowed: " + r.Item3 + Environment.NewLine;
 
-                var r2 = mgr.Load(csharpappdata, "1.2.3.4", options, callbacks, "All");
+                var r2 = mgr.Load(new string[] { csharpappdata }, new bool[] { false }, "1.2.3.4", options, callbacks, ref allow);
                 richTextBox1.Text += "CSDLL Loaded: " + r2.Item1 + Environment.NewLine;
                 richTextBox1.Text += "CSDLL Failed: " + r2.Item2 + Environment.NewLine;
                 richTextBox1.Text += "CSDLL Not Allowed: " + r2.Item3 + Environment.NewLine;
@@ -121,7 +124,7 @@ namespace CHash
 
         private void buttonNJE_Click(object sender, EventArgs e)
         {
-            EDDDLLInterfaces.EDDDLLIF.JournalEntry nje = new EDDDLLInterfaces.EDDDLLIF.JournalEntry() { ver = 2, indexno = 19 };
+            EDDDLLInterfaces.EDDDLLIF.JournalEntry nje = new EDDDLLInterfaces.EDDDLLIF.JournalEntry() { ver = 3, indexno = 19 };
 
             nje.utctime = DateTime.UtcNow.ToString();
             nje.name = "EventSummary";
@@ -152,9 +155,11 @@ namespace CHash
             nje.shipident = "Y-1929";
             nje.shipname = "Julia";
             nje.hullvalue = 200000;
-            nje.modulesvalue = 20000;
             nje.rebuy = 5000;
-            nje.stored = false;
+            nje.modulesvalue = 6666;
+            nje.stored = true;
+            nje.travelstate = "Travelling";
+            nje.microresources = new string[] { "MR1", "MR2", "MR3" };
 
             mgr.NewJournalEntry(nje, false);
 
@@ -169,7 +174,7 @@ namespace CHash
 
         private void buttonRefresh_Click(object sender, EventArgs e)
         {
-            EDDDLLInterfaces.EDDDLLIF.JournalEntry nje = new EDDDLLInterfaces.EDDDLLIF.JournalEntry() { ver = 2, indexno = 19 };
+            EDDDLLInterfaces.EDDDLLIF.JournalEntry nje = new EDDDLLInterfaces.EDDDLLIF.JournalEntry() { ver = 3, indexno = 19 };
 
             nje.utctime = "01/02/03";
             nje.name = "EventSummary";
@@ -194,6 +199,8 @@ namespace CHash
             nje.totalrecords = 2001;
             nje.jid = 101;
             nje.json = "{\"timestamp\"=\"10-20\"}";
+            nje.travelstate = "Travelling";
+            nje.microresources = new string[] { "MR1", "MR2" };
 
 
             mgr.Refresh("Jameson", nje);
@@ -219,7 +226,7 @@ namespace CHash
 
         private void buttonAJE_Click(object sender, EventArgs e)
         {
-            EDDDLLInterfaces.EDDDLLIF.JournalEntry nje = new EDDDLLInterfaces.EDDDLLIF.JournalEntry() { ver = 2, indexno = 19 };
+            EDDDLLInterfaces.EDDDLLIF.JournalEntry nje = new EDDDLLInterfaces.EDDDLLIF.JournalEntry() { ver = 3, indexno = 19 };
 
             nje.utctime = DateTime.UtcNow.ToString();
             nje.name = "EventSummary";
@@ -253,6 +260,8 @@ namespace CHash
             nje.modulesvalue = 20000;
             nje.rebuy = 5000;
             nje.stored = false;
+            nje.travelstate = "Travelling";
+            nje.microresources = new string[] { "MR1", "MR2" };
 
             mgr.ActionJournalEntry("All",nje);
 

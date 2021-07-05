@@ -1,1 +1,1 @@
-This interface definition comes from EDDLite
+This interface definition comes from Main program

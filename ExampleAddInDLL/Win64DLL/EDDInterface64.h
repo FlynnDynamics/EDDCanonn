@@ -49,6 +49,7 @@ extern "C"
 
 		long long jid;					// jid of event
 		long totalrecords;				// number of records 
+
 		// Version 1 ends
 
 		BSTR json;
@@ -62,6 +63,11 @@ extern "C"
 		bool stored;
 
 		// Version 2 ends
+
+		BSTR travelstate;
+		SAFEARRAY& microresources;		// BSTRs listing current mr details
+
+		// Version 3 ends
 	};
 
 	// request history.  if isjid=false, 1 = first entry, to end entry.  If isjid=true, its the jid number.

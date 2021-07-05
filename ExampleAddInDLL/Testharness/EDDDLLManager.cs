@@ -17,8 +17,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace EliteDangerousCore.DLL
 {
@@ -28,56 +30,86 @@ namespace EliteDangerousCore.DLL
         public List<EDDDLLCaller> DLLs { get; private set; } = new List<EDDDLLCaller>();
 
         // search directory for *.dll, 
-        // return loaded, failed, notallowed
+        // return loaded, failed, new dlls not in the allowed/disallowed list, disabled
+        // alloweddisallowed list is +allowed,-disallowed.. 
         // all Csharp assembly DLLs are loaded - only ones implementing *EDDClass class causes it to be added to the DLL list
         // only normal DLLs implementing EDDInitialise are kept loaded
 
-        public Tuple<string, string, string> Load(string dlldirectory, string ourversion, string[] inoptions, EDDDLLInterfaces.EDDDLLIF.EDDCallBacks callbacks, string allowed)
+        public Tuple<string, string, string, string> Load(string[] dlldirectories, bool[] disallowautomatically, string ourversion, string[] inoptions,
+                                EDDDLLInterfaces.EDDDLLIF.EDDCallBacks callbacks, ref string alloweddisallowed)
         {
             string loaded = "";
             string failed = "";
-            string notallowed = "";
+            string disabled = "";
+            string newdlls = "";
 
-            if (!Directory.Exists(dlldirectory))
-                failed = "DLL Folder does not exist";
-            else
+            for (int i = 0; i < dlldirectories.Length; i++)
             {
-                FileInfo[] allFiles = Directory.EnumerateFiles(dlldirectory, "*.dll", SearchOption.TopDirectoryOnly).Select(f => new FileInfo(f)).OrderBy(p => p.LastWriteTime).ToArray();
+                var dlldirectory = dlldirectories[i];
 
-                string[] allowedfiles = allowed.Split(',');
-
-                foreach (FileInfo f in allFiles)
+                if (dlldirectory != null)
                 {
-                    string filename = System.IO.Path.GetFileNameWithoutExtension(f.FullName);
-
-                    EDDDLLCaller caller = new EDDDLLCaller();
-
-                    System.Diagnostics.Debug.WriteLine("Try to load " + f.FullName);
-
-                    if (caller.Load(f.FullName))        // if loaded okay
+                    if (!Directory.Exists(dlldirectory))
+                        failed = failed.AppendPrePad("DLL Folder " + dlldirectory + " does not exist", ",");
+                    else
                     {
-                        if (allowed.Equals("All", StringComparison.InvariantCultureIgnoreCase) || allowedfiles.Contains(filename, StringComparer.InvariantCultureIgnoreCase))    // if allowed..
+                        FileInfo[] allFiles = Directory.EnumerateFiles(dlldirectory, "*.dll", SearchOption.TopDirectoryOnly).Select(f => new FileInfo(f)).OrderBy(p => p.LastWriteTime).ToArray();
+
+                        string[] allowedfiles = alloweddisallowed.Split(',');
+
+                        foreach (FileInfo f in allFiles)
                         {
-                            if (caller.Init(ourversion, inoptions, dlldirectory, callbacks))       // must init
+                            EDDDLLCaller caller = new EDDDLLCaller();
+
+                            System.Diagnostics.Debug.WriteLine("Try to load " + f.FullName);
+
+                            string filename = System.IO.Path.GetFileNameWithoutExtension(f.FullName);
+
+                            bool isallowed = alloweddisallowed.Equals("All", StringComparison.InvariantCultureIgnoreCase) ||
+                                             allowedfiles.Contains("+" + f.FullName, StringComparer.InvariantCultureIgnoreCase) ||      // full name is now used
+                                             allowedfiles.Contains("+" + filename, StringComparer.InvariantCultureIgnoreCase);              // filename previously used
+
+                            bool isdisallowed = allowedfiles.Contains("-" + f.FullName, StringComparer.InvariantCultureIgnoreCase) ||      // full name is now used
+                                                allowedfiles.Contains("-" + filename, StringComparer.InvariantCultureIgnoreCase);              // filename previously used
+
+                            if (isdisallowed)     // disallowed
                             {
-                                DLLs.Add(caller);
-                                loaded = loaded.AppendPrePad(caller.Name, ",");
+                                disabled = disabled.AppendPrePad(f.FullName, ",");
+                            }
+                            else if (isallowed)    // if allowed..
+                            {
+                                if (caller.Load(f.FullName))        // if loaded okay
+                                {
+                                    if (caller.Init(ourversion, inoptions, dlldirectory, callbacks))       // must init
+                                    {
+                                        DLLs.Add(caller);
+                                        loaded = loaded.AppendPrePad(f.FullName, ",");        // just use short name for reporting
+                                    }
+                                    else
+                                    {
+                                        string errstr = caller.Version.HasChars() ? (": " + caller.Version.Substring(1)) : "";
+                                        failed = failed.AppendPrePad(f.FullName + errstr, ","); // long name for failure
+                                    }
+                                }
                             }
                             else
                             {
-                                string errstr = caller.Version.HasChars() ? (": " + caller.Version.Substring(1)) : "";
-                                failed = failed.AppendPrePad(caller.Name + errstr, ",");
+                                if (disallowautomatically[i])
+                                {
+                                    alloweddisallowed = alloweddisallowed.AppendPrePad("-" + f.FullName, ",");
+                                    disabled = disabled.AppendPrePad(f.FullName, ",");
+                                }
+                                else
+                                {
+                                    newdlls = newdlls.AppendPrePad(f.FullName, ",");
+                                }
                             }
-                        }
-                        else
-                        {
-                            notallowed = notallowed.AppendPrePad(caller.Name, ",");
                         }
                     }
                 }
             }
 
-            return new Tuple<string, string, string>(loaded, failed, notallowed);
+            return new Tuple<string, string, string, string>(loaded, failed, newdlls, disabled);
         }
 
         public void UnLoad()
@@ -169,6 +201,10 @@ namespace EliteDangerousCore.DLL
             else
                 return new Tuple<bool, string, string>(false, caller.Name, r.Mid(1));
         }
+
+
+ 
+
     }
 }
 

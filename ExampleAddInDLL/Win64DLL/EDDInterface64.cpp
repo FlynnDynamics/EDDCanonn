@@ -49,7 +49,7 @@ void WriteJournalEntry(JournalEntry ptr)
 			ptr.x, ptr.y, ptr.z, ptr.travelleddistance, ptr.travelledseconds, ptr.islanded ? 1 : 0, ptr.isdocked ? 1 : 0, ptr.whereami, ptr.shiptype, ptr.gamemode, ptr.group, ptr.credits,
 			ptr.jid, ptr.totalrecords);
 	}
-	else
+	else if (ptr.ver == 2)
 	{
 		LPCTSTR pszFormat = TEXT("V%d : %s: %d:%s :'%s' '%s' '%s' : sys %s\nx%f y%f z%f | td%f ts%u | %d %d | loc '%s' st '%s' gm %s grp %s | %d cr | jid %d rec %d\nJSON:%s\nCmdr %s\n");
 		StringCbPrintfW(buffer, cbDest, pszFormat,
@@ -58,7 +58,19 @@ void WriteJournalEntry(JournalEntry ptr)
 			ptr.name, ptr.info, ptr.detailedinfo,
 			ptr.systemname,
 			ptr.x, ptr.y, ptr.z, ptr.travelleddistance, ptr.travelledseconds, ptr.islanded ? 1 : 0, ptr.isdocked ? 1 : 0, ptr.whereami, ptr.shiptype, ptr.gamemode, ptr.group, ptr.credits,
-			ptr.jid, ptr.totalrecords , ptr.json, ptr.cmdrname);
+			ptr.jid, ptr.totalrecords, ptr.json, ptr.cmdrname);
+	}
+	else if (ptr.ver == 3)
+	{
+		LPCTSTR pszFormat = TEXT("V%d : %s: %d:%s :'%s' '%s' '%s' : sys %s\nx%f y%f z%f | td%f ts%u | %d %d | loc '%s' st '%s' gm %s grp %s | %d cr | jid %d rec %d\nJSON:%s\nCmdr %s | ts %s\n");
+		StringCbPrintfW(buffer, cbDest, pszFormat,
+			ptr.ver,
+			ptr.utctime, ptr.indexno, ptr.eventid,
+			ptr.name, ptr.info, ptr.detailedinfo,
+			ptr.systemname,
+			ptr.x, ptr.y, ptr.z, ptr.travelleddistance, ptr.travelledseconds, ptr.islanded ? 1 : 0, ptr.isdocked ? 1 : 0, ptr.whereami, ptr.shiptype, ptr.gamemode, ptr.group, ptr.credits,
+			ptr.jid, ptr.totalrecords, ptr.json, ptr.cmdrname,
+			ptr.travelstate);
 	}
 
 	//int of = offsetof(NewJournalEntry, whereami);
@@ -87,6 +99,7 @@ void WriteJournalEntry(JournalEntry ptr)
 		}
 	}
 	wcscat_s(buffer, arraysize, L"\n");
+
 	wcscat_s(buffer, arraysize, L"Commodities:");
 
 	if (ptr.commodities.cDims == 1)
@@ -110,6 +123,31 @@ void WriteJournalEntry(JournalEntry ptr)
 	}
 
 	wcscat_s(buffer, arraysize, L"\n");
+
+	wcscat_s(buffer, arraysize, L"MR:");
+
+	if (ptr.microresources.cDims == 1)
+	{
+		if ((ptr.microresources.fFeatures & FADF_BSTR) == FADF_BSTR)
+		{
+			BSTR* bstrArray;
+			HRESULT hr = SafeArrayAccessData(&ptr.microresources, (void**)&bstrArray);
+
+			long iMin = 0;
+			SafeArrayGetLBound(&ptr.microresources, 1, &iMin);
+			long iMax = 0;
+			SafeArrayGetUBound(&ptr.microresources, 1, &iMax);
+
+			for (long i = iMin; i <= iMax; ++i)
+			{
+				wcscat_s(buffer, arraysize, bstrArray[i]);		// WORDs! length
+				wcscat_s(buffer, arraysize, L",");		// WORDs! length
+			}
+		}
+	}
+
+	wcscat_s(buffer, arraysize, L"\n");
+
 	wcscat_s(buffer, arraysize, L"Missions:");
 
 	if (ptr.currentmissions.cDims == 1)
@@ -220,7 +258,20 @@ EDD_API BSTR EDDActionCommand(BSTR action, SAFEARRAY& args)		// should always re
 			{
 				WriteASCII("call back:\n");
 				SAFEARRAY sa;
-				JournalEntry je = { 1,1,NULL,NULL,NULL,NULL,sa,sa, NULL,0,0,0, 0,0, 0,0, NULL,NULL,NULL,NULL, 0, NULL, sa };
+				JournalEntry je = { 1,1,
+									NULL,NULL,NULL,NULL,
+									sa,sa, 
+									NULL,0,0,0, 
+									0,0, 
+									0,0, 
+									NULL,NULL,NULL,NULL, 0, 
+									NULL, 
+									sa,		// currentmissions
+									0,0,
+									NULL,NULL,NULL,NULL,NULL,0,0,0,0,
+									NULL,
+									sa,
+				};
 				(*callbacks.RequestHistory)(i, false, &je);		// perform a call back..
 				WriteJournalEntry(je);
 			}
