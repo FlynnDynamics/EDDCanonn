@@ -68,6 +68,12 @@ extern "C"
 		SAFEARRAY& microresources;		// BSTRs listing current mr details
 
 		// Version 3 ends
+
+		bool horizons;
+		bool odyssey;
+		bool beta;		
+
+		// Version 4 ends
 	};
 
 	// request history.  if isjid=false, 1 = first entry, to end entry.  If isjid=true, its the jid number.

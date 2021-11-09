@@ -72,11 +72,24 @@ void WriteJournalEntry(JournalEntry ptr)
 			ptr.jid, ptr.totalrecords, ptr.json, ptr.cmdrname,
 			ptr.travelstate);
 	}
+	else if (ptr.ver == 4)
+	{
+		LPCTSTR pszFormat = TEXT("V%d : %s: %d:%s :'%s' '%s' '%s' : sys %s\nx%f y%f z%f | td%f ts%u | %d %d | loc '%s' st '%s' gm %s grp %s | %d cr | jid %d rec %d\nJSON:%s\nCmdr %s | ts %s\n h %d o %d beta %d\n");
+		StringCbPrintfW(buffer, cbDest, pszFormat,
+			ptr.ver,
+			ptr.utctime, ptr.indexno, ptr.eventid,
+			ptr.name, ptr.info, ptr.detailedinfo,
+			ptr.systemname,
+			ptr.x, ptr.y, ptr.z, ptr.travelleddistance, ptr.travelledseconds, ptr.islanded ? 1 : 0, ptr.isdocked ? 1 : 0, ptr.whereami, ptr.shiptype, ptr.gamemode, ptr.group, ptr.credits,
+			ptr.jid, ptr.totalrecords, ptr.json, ptr.cmdrname,
+			ptr.travelstate,
+			ptr.horizons,ptr.odyssey,ptr.beta);
+	}
 
 	//int of = offsetof(NewJournalEntry, whereami);
 	//StringCbPrintfW(buffer, cbDest, L"%d", of);
 
-	wcscat_s(buffer, arraysize, L"Materials:");
+	wcscat_s(buffer, arraysize, TEXT("Materials:"));
 
 	if (ptr.materials.cDims == 1)
 	{

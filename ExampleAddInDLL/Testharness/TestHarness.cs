@@ -29,7 +29,7 @@ namespace CHash
 
         public bool RequestHistory(long index, bool isjid, out EDDDLLInterfaces.EDDDLLIF.JournalEntry f)
         {
-            EDDDLLInterfaces.EDDDLLIF.JournalEntry nje = new EDDDLLInterfaces.EDDDLLIF.JournalEntry() { ver = 3, indexno = 19 };
+            EDDDLLInterfaces.EDDDLLIF.JournalEntry nje = new EDDDLLInterfaces.EDDDLLIF.JournalEntry() { ver = 4, indexno = 19 };
 
             nje.utctime = DateTime.UtcNow.ToString();
             nje.name = "EventSummary!";
@@ -60,12 +60,15 @@ namespace CHash
             nje.cmdrfid = "F19292";
             nje.shipident = "Y-1929";
             nje.shipname = "Julia";
-            //nje.hullvalue = 200000;
-            //nje.modulesvalue = 20000;
-            //nje.rebuy = 5000;
-            //nje.stored = false;
-      //      nje.travelstate = "Travelling";
-      //      nje.microresources = new string[] { "MR1", "MR2" };
+            //nje.beta = true;
+            //nje.horizons = false;
+            //nje.odyssey = true;
+            nje.hullvalue = 200000;
+            nje.modulesvalue = 20000;
+            nje.rebuy = 5000;
+            nje.stored = false;
+            nje.travelstate = "Travelling";
+            nje.microresources = new string[] { "MR1", "MR2" };
 
             f = nje;
 
@@ -124,7 +127,7 @@ namespace CHash
 
         private void buttonNJE_Click(object sender, EventArgs e)
         {
-            EDDDLLInterfaces.EDDDLLIF.JournalEntry nje = new EDDDLLInterfaces.EDDDLLIF.JournalEntry() { ver = 3, indexno = 19 };
+            EDDDLLInterfaces.EDDDLLIF.JournalEntry nje = new EDDDLLInterfaces.EDDDLLIF.JournalEntry() { ver = 4, indexno = 19 };
 
             nje.utctime = DateTime.UtcNow.ToString();
             nje.name = "EventSummary";
@@ -160,6 +163,9 @@ namespace CHash
             nje.stored = true;
             nje.travelstate = "Travelling";
             nje.microresources = new string[] { "MR1", "MR2", "MR3" };
+            nje.horizons = false;
+            nje.odyssey = true;
+            nje.beta = false;
 
             mgr.NewJournalEntry(nje, false);
 
