@@ -17,14 +17,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
 
 namespace EliteDangerousCore.DLL
 {
-    public class EDDDLLManager
+    public partial class EDDDLLManager
     {
         public int Count { get { return DLLs.Count; } }
         public List<EDDDLLCaller> DLLs { get; private set; } = new List<EDDDLLCaller>();
@@ -36,7 +34,9 @@ namespace EliteDangerousCore.DLL
         // only normal DLLs implementing EDDInitialise are kept loaded
 
         public Tuple<string, string, string, string> Load(string[] dlldirectories, bool[] disallowautomatically, string ourversion, string[] inoptions,
-                                EDDDLLInterfaces.EDDDLLIF.EDDCallBacks callbacks, ref string alloweddisallowed)
+                                EDDDLLInterfaces.EDDDLLIF.EDDCallBacks callbacks, ref string alloweddisallowed,
+                                Func<string, string> getconfig, Action<string, string> setconfig
+                                )
         {
             string loaded = "";
             string failed = "";
@@ -82,8 +82,15 @@ namespace EliteDangerousCore.DLL
                                 {
                                     if (caller.Init(ourversion, inoptions, dlldirectory, callbacks))       // must init
                                     {
+                                        if (caller.HasConfig())
+                                        {
+                                            string cfg = getconfig(caller.Name);
+                                            string res = caller.Config(cfg, false);  // pass in config, save config, don't edit
+                                            setconfig(caller.Name, res);
+                                        }
+
                                         DLLs.Add(caller);
-                                        loaded = loaded.AppendPrePad(f.FullName, ",");        // just use short name for reporting
+                                        loaded = loaded.AppendPrePad(filename, ",");        // just use short name for reporting
                                     }
                                     else
                                     {
@@ -94,14 +101,22 @@ namespace EliteDangerousCore.DLL
                             }
                             else
                             {
+                                bool innewdlls = newdlls.Contains(f.FullName);
+
                                 if (disallowautomatically[i])
                                 {
-                                    alloweddisallowed = alloweddisallowed.AppendPrePad("-" + f.FullName, ",");
-                                    disabled = disabled.AppendPrePad(f.FullName, ",");
+                                    if (!innewdlls)     // Ealhstan special - if we are scanning the same folder multiple times, it may have already been added to newdlls
+                                    {
+                                        alloweddisallowed = alloweddisallowed.AppendPrePad("-" + f.FullName, ",");
+                                        disabled = disabled.AppendPrePad(f.FullName, ",");
+                                    }
                                 }
                                 else
                                 {
-                                    newdlls = newdlls.AppendPrePad(f.FullName, ",");
+                                    if (!innewdlls)      // Eahlstan special - don't add twice to the newdlls in case we are scanning the same folder twice
+                                    {
+                                        newdlls = newdlls.AppendPrePad(f.FullName, ",");
+                                    }
                                 }
                             }
                         }
@@ -201,9 +216,6 @@ namespace EliteDangerousCore.DLL
             else
                 return new Tuple<bool, string, string>(false, caller.Name, r.Mid(1));
         }
-
-
- 
 
     }
 }

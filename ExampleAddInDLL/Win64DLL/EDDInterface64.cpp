@@ -36,154 +36,165 @@ void WriteJournalEntry(JournalEntry ptr)
 
 	int const arraysize = 100000;
 	TCHAR buffer[arraysize];
-	size_t cbDest = arraysize * sizeof(TCHAR);
+	*buffer = 0;
+	size_t bufsize = arraysize * sizeof(TCHAR);
 
-	if (ptr.ver == 1)
+	if (ptr.ver >= 1)
 	{
-		LPCTSTR pszFormat = TEXT("V%d : %s: %d:%s :'%s' '%s' '%s' : sys %s\nx%f y%f z%f | td%f ts%u | %d %d | loc '%s' st '%s' gm %s grp %s | %d cr | jid %d rec %d\n");
-		StringCbPrintfW(buffer, cbDest, pszFormat,
+		LPCTSTR pszFormat = TEXT("Version %d : UTC %s: %d:%s\nSummary:'%s'\nInfo:'%s'\nDetailed:'%s'\nSystem %s @ x%f y%f z%f\ntdist %f tsecs %u | landed %d docked %d | whereami '%s' ship '%s' gamemode %s (%s) | %llx cr | jid %llx rec %d\n");
+		TCHAR linebuf[1000];
+		StringCbPrintfW(linebuf, sizeof(linebuf), pszFormat,
 			ptr.ver,
 			ptr.utctime, ptr.indexno, ptr.eventid,
 			ptr.name, ptr.info, ptr.detailedinfo,
-			ptr.systemname,
-			ptr.x, ptr.y, ptr.z, ptr.travelleddistance, ptr.travelledseconds, ptr.islanded ? 1 : 0, ptr.isdocked ? 1 : 0, ptr.whereami, ptr.shiptype, ptr.gamemode, ptr.group, ptr.credits,
+			ptr.systemname, ptr.x, ptr.y, ptr.z,
+			ptr.travelleddistance, ptr.travelledseconds,
+			ptr.islanded ? 1 : 0, ptr.isdocked ? 1 : 0,
+			ptr.whereami, ptr.shiptype, ptr.gamemode, ptr.group, ptr.credits,
 			ptr.jid, ptr.totalrecords);
+		wcscat_s(buffer,arraysize, linebuf);
+
+		wcscat_s(buffer, arraysize, TEXT("Materials:"));
+
+		if (ptr.materials.cDims == 1)
+		{
+
+			if ((ptr.materials.fFeatures & FADF_BSTR) == FADF_BSTR)
+			{
+				BSTR* bstrArray;
+				HRESULT hr = SafeArrayAccessData(&ptr.materials, (void**)&bstrArray);
+
+				long iMin = 0;
+				SafeArrayGetLBound(&ptr.materials, 1, &iMin);
+				long iMax = 0;
+				SafeArrayGetUBound(&ptr.materials, 1, &iMax);
+
+				for (long i = iMin; i <= iMax; ++i)
+				{
+					wcscat_s(buffer, arraysize, bstrArray[i]);
+					wcscat_s(buffer, arraysize, L",");		// WORDs! length
+				}
+			}
+		}
+		wcscat_s(buffer, arraysize, L"\n");
+
+		wcscat_s(buffer, arraysize, L"Commodities:");
+
+		if (ptr.commodities.cDims == 1)
+		{
+			if ((ptr.commodities.fFeatures & FADF_BSTR) == FADF_BSTR)
+			{
+				BSTR* bstrArray;
+				HRESULT hr = SafeArrayAccessData(&ptr.commodities, (void**)&bstrArray);
+
+				long iMin = 0;
+				SafeArrayGetLBound(&ptr.commodities, 1, &iMin);
+				long iMax = 0;
+				SafeArrayGetUBound(&ptr.commodities, 1, &iMax);
+
+				for (long i = iMin; i <= iMax; ++i)
+				{
+					wcscat_s(buffer, arraysize, bstrArray[i]);		// WORDs! length
+					wcscat_s(buffer, arraysize, L",");		// WORDs! length
+				}
+			}
+		}
+
+		wcscat_s(buffer, arraysize, L"\n");
+
+		wcscat_s(buffer, arraysize, L"Missions:");
+
+		if (ptr.currentmissions.cDims == 1)
+		{
+			if ((ptr.currentmissions.fFeatures & FADF_BSTR) == FADF_BSTR)
+			{
+				BSTR* bstrArray;
+				HRESULT hr = SafeArrayAccessData(&ptr.currentmissions, (void**)&bstrArray);
+
+				long iMin = 0;
+				SafeArrayGetLBound(&ptr.currentmissions, 1, &iMin);
+				long iMax = 0;
+				SafeArrayGetUBound(&ptr.currentmissions, 1, &iMax);
+
+				for (long i = iMin; i <= iMax; ++i)
+				{
+					wcscat_s(buffer, arraysize, bstrArray[i]);		// WORDs! length
+					wcscat_s(buffer, arraysize, L",");		// WORDs! length
+				}
+			}
+		}
+
+		wcscat_s(buffer, arraysize, L"\n");
+
 	}
-	else if (ptr.ver == 2)
+
+	if (ptr.ver >= 2)
 	{
-		LPCTSTR pszFormat = TEXT("V%d : %s: %d:%s :'%s' '%s' '%s' : sys %s\nx%f y%f z%f | td%f ts%u | %d %d | loc '%s' st '%s' gm %s grp %s | %d cr | jid %d rec %d\nJSON:%s\nCmdr %s\n");
-		StringCbPrintfW(buffer, cbDest, pszFormat,
-			ptr.ver,
-			ptr.utctime, ptr.indexno, ptr.eventid,
-			ptr.name, ptr.info, ptr.detailedinfo,
-			ptr.systemname,
-			ptr.x, ptr.y, ptr.z, ptr.travelleddistance, ptr.travelledseconds, ptr.islanded ? 1 : 0, ptr.isdocked ? 1 : 0, ptr.whereami, ptr.shiptype, ptr.gamemode, ptr.group, ptr.credits,
-			ptr.jid, ptr.totalrecords, ptr.json, ptr.cmdrname);
+		LPCTSTR pszFormat = TEXT("V2: JSON:%s\nCmdr %s %s | ship %s %s | hv %lx rb %lx mv %lx | stored %d\n");
+		TCHAR linebuf[10000];
+		StringCbPrintfW(linebuf, sizeof(linebuf), pszFormat,
+			ptr.json, ptr.cmdrname, ptr.cmdrfid,
+			ptr.shipident, ptr.shipname,
+			ptr.hullvalue, ptr.rebuy, ptr.modulesvalue, ptr.stored);
+		wcscat_s(buffer, arraysize, linebuf);
 	}
-	else if (ptr.ver == 3)
+
+	if (ptr.ver >= 3)
 	{
-		LPCTSTR pszFormat = TEXT("V%d : %s: %d:%s :'%s' '%s' '%s' : sys %s\nx%f y%f z%f | td%f ts%u | %d %d | loc '%s' st '%s' gm %s grp %s | %d cr | jid %d rec %d\nJSON:%s\nCmdr %s | ts %s\n");
-		StringCbPrintfW(buffer, cbDest, pszFormat,
-			ptr.ver,
-			ptr.utctime, ptr.indexno, ptr.eventid,
-			ptr.name, ptr.info, ptr.detailedinfo,
-			ptr.systemname,
-			ptr.x, ptr.y, ptr.z, ptr.travelleddistance, ptr.travelledseconds, ptr.islanded ? 1 : 0, ptr.isdocked ? 1 : 0, ptr.whereami, ptr.shiptype, ptr.gamemode, ptr.group, ptr.credits,
-			ptr.jid, ptr.totalrecords, ptr.json, ptr.cmdrname,
+		LPCTSTR pszFormat = TEXT("V3: ts %s\n");
+		TCHAR linebuf[1000];
+		StringCbPrintfW(linebuf, sizeof(linebuf), pszFormat,
 			ptr.travelstate);
-	}
-	else if (ptr.ver == 4)
-	{
-		LPCTSTR pszFormat = TEXT("V%d : %s: %d:%s :'%s' '%s' '%s' : sys %s\nx%f y%f z%f | td%f ts%u | %d %d | loc '%s' st '%s' gm %s grp %s | %d cr | jid %d rec %d\nJSON:%s\nCmdr %s | ts %s\n h %d o %d beta %d\n");
-		StringCbPrintfW(buffer, cbDest, pszFormat,
-			ptr.ver,
-			ptr.utctime, ptr.indexno, ptr.eventid,
-			ptr.name, ptr.info, ptr.detailedinfo,
-			ptr.systemname,
-			ptr.x, ptr.y, ptr.z, ptr.travelleddistance, ptr.travelledseconds, ptr.islanded ? 1 : 0, ptr.isdocked ? 1 : 0, ptr.whereami, ptr.shiptype, ptr.gamemode, ptr.group, ptr.credits,
-			ptr.jid, ptr.totalrecords, ptr.json, ptr.cmdrname,
-			ptr.travelstate,
-			ptr.horizons,ptr.odyssey,ptr.beta);
-	}
+		wcscat_s(buffer, arraysize, linebuf);
 
-	//int of = offsetof(NewJournalEntry, whereami);
-	//StringCbPrintfW(buffer, cbDest, L"%d", of);
+		wcscat_s(buffer, arraysize, L"MR:");
 
-	wcscat_s(buffer, arraysize, TEXT("Materials:"));
-
-	if (ptr.materials.cDims == 1)
-	{
-
-		if ((ptr.materials.fFeatures & FADF_BSTR) == FADF_BSTR)
+		if (ptr.microresources.cDims == 1)
 		{
-			BSTR* bstrArray;
-			HRESULT hr = SafeArrayAccessData(&ptr.materials, (void**)&bstrArray);
-
-			long iMin = 0;
-			SafeArrayGetLBound(&ptr.materials, 1, &iMin);
-			long iMax = 0;
-			SafeArrayGetUBound(&ptr.materials, 1, &iMax);
-
-			for (long i = iMin; i <= iMax; ++i)
+			if ((ptr.microresources.fFeatures & FADF_BSTR) == FADF_BSTR)
 			{
-				wcscat_s(buffer, arraysize, bstrArray[i]);
-				wcscat_s(buffer, arraysize, L",");		// WORDs! length
+				BSTR* bstrArray;
+				HRESULT hr = SafeArrayAccessData(&ptr.microresources, (void**)&bstrArray);
+
+				long iMin = 0;
+				SafeArrayGetLBound(&ptr.microresources, 1, &iMin);
+				long iMax = 0;
+				SafeArrayGetUBound(&ptr.microresources, 1, &iMax);
+
+				for (long i = iMin; i <= iMax; ++i)
+				{
+					wcscat_s(buffer, arraysize, bstrArray[i]);		// WORDs! length
+					wcscat_s(buffer, arraysize, L",");		// WORDs! length
+				}
 			}
 		}
+
+		wcscat_s(buffer, arraysize, L"\n");
 	}
-	wcscat_s(buffer, arraysize, L"\n");
 
-	wcscat_s(buffer, arraysize, L"Commodities:");
-
-	if (ptr.commodities.cDims == 1)
+	if (ptr.ver >= 4)
 	{
-		if ((ptr.commodities.fFeatures & FADF_BSTR) == FADF_BSTR)
-		{
-			BSTR* bstrArray;
-			HRESULT hr = SafeArrayAccessData(&ptr.commodities, (void**)&bstrArray);
-
-			long iMin = 0;
-			SafeArrayGetLBound(&ptr.commodities, 1, &iMin);
-			long iMax = 0;
-			SafeArrayGetUBound(&ptr.commodities, 1, &iMax);
-
-			for (long i = iMin; i <= iMax; ++i)
-			{
-				wcscat_s(buffer, arraysize, bstrArray[i]);		// WORDs! length
-				wcscat_s(buffer, arraysize, L",");		// WORDs! length
-			}
-		}
+		LPCTSTR pszFormat = TEXT("V4: h %d o%d b %d\n");
+		TCHAR linebuf[1000];
+		StringCbPrintfW(linebuf, sizeof(linebuf), pszFormat,
+			ptr.horizons, ptr.odyssey, ptr.beta);
+		wcscat_s(buffer, arraysize, linebuf);
 	}
 
-	wcscat_s(buffer, arraysize, L"\n");
 
-	wcscat_s(buffer, arraysize, L"MR:");
-
-	if (ptr.microresources.cDims == 1)
+	if (ptr.ver >= 5)
 	{
-		if ((ptr.microresources.fFeatures & FADF_BSTR) == FADF_BSTR)
-		{
-			BSTR* bstrArray;
-			HRESULT hr = SafeArrayAccessData(&ptr.microresources, (void**)&bstrArray);
-
-			long iMin = 0;
-			SafeArrayGetLBound(&ptr.microresources, 1, &iMin);
-			long iMax = 0;
-			SafeArrayGetUBound(&ptr.microresources, 1, &iMax);
-
-			for (long i = iMin; i <= iMax; ++i)
-			{
-				wcscat_s(buffer, arraysize, bstrArray[i]);		// WORDs! length
-				wcscat_s(buffer, arraysize, L",");		// WORDs! length
-			}
-		}
+		LPCTSTR pszFormat = TEXT(
+			"V5: w %d ba %d bdrop %d issrv %d isfig %d onfoot %d bookedtaxi %d\n"
+			"bn %s bt %s sn %s st %s sf %s stype %s oncrew %s\n"
+			"shipid %llx bodyid %d\n"
+		);
+		TCHAR linebuf[1000];
+		StringCbPrintfW(linebuf, sizeof(linebuf), pszFormat,
+			ptr.wanted, ptr.bodyapproached, ptr.bookeddropship, ptr.issrv, ptr.isfighter, ptr.onfoot, ptr.bookedtaxi,
+			ptr.bodyname, ptr.bodytype, ptr.stationname, ptr.stationtype, ptr.stationfaction, ptr.shiptypefd, ptr.oncrewwithcaptain, ptr.shipid, ptr.bodyid);
+		wcscat_s(buffer, arraysize, linebuf);
 	}
-
-	wcscat_s(buffer, arraysize, L"\n");
-
-	wcscat_s(buffer, arraysize, L"Missions:");
-
-	if (ptr.currentmissions.cDims == 1)
-	{
-		if ((ptr.currentmissions.fFeatures & FADF_BSTR) == FADF_BSTR)
-		{
-			BSTR* bstrArray;
-			HRESULT hr = SafeArrayAccessData(&ptr.currentmissions, (void**)&bstrArray);
-
-			long iMin = 0;
-			SafeArrayGetLBound(&ptr.currentmissions, 1, &iMin);
-			long iMax = 0;
-			SafeArrayGetUBound(&ptr.currentmissions, 1, &iMax);
-
-			for (long i = iMin; i <= iMax; ++i)
-			{
-				wcscat_s(buffer, arraysize, bstrArray[i]);		// WORDs! length
-				wcscat_s(buffer, arraysize, L",");		// WORDs! length
-			}
-		}
-	}
-
-	wcscat_s(buffer, arraysize, L"\n");
 
 	WriteASCII("--------------- Journal Entry Data\n");
 	WriteUnicode(buffer);
@@ -201,7 +212,7 @@ EDD_API BSTR EDDInitialise(BSTR ver, BSTR folder, EDDCallBacks pcallbacks)
 	WriteASCII("\n");
 	callbacks = pcallbacks;
 	//MessageBoxW(0, ver, L"Caption ɑːkɒn", MB_OK);
-	return SysAllocString(L"0.1.2.3");
+	return SysAllocString(L"0.1.2.3;PLAYLASTFILELOAD");
 	//return SysAllocString(L"!Error is this");		// for an error
 }
 
@@ -309,5 +320,17 @@ EDD_API void EDDActionJournalEntry(JournalEntry ptr)
 	wcscpy_s(buffer, 1000, L"Journal Entry sent:\n");
 	WriteUnicode(buffer);
 	WriteJournalEntry(ptr);
+}
+
+EDD_API BSTR EDDConfig(BSTR istr, bool editit)
+{
+	TCHAR buffer[1000];
+	if ( editit )
+		wcscpy_s(buffer, 1000, L"Win64 Config Edit\n");
+	else
+		wcscpy_s(buffer, 1000, L"Win64 Config\n");
+	WriteUnicode(buffer);
+	*istr = (((*istr)+1) % 32) + '@';	// keep on changing it
+	return SysAllocString(istr);
 }
 

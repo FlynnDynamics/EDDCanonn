@@ -37,6 +37,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -58,6 +59,8 @@
   <PropertyGroup>
     <PostBuildEvent>copy csharpdll.dll ..\..\appdata
 copy dependency.dll ..\..\appdata
+
+copy csharpdll.dll c:\users\%25USERNAME%25\appdata\local\eddiscovery\dll
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

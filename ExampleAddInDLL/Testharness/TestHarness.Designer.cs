@@ -34,9 +34,10 @@
             this.buttonNJE = new System.Windows.Forms.Button();
             this.buttonAction = new System.Windows.Forms.Button();
             this.buttonRefresh = new System.Windows.Forms.Button();
-            this.buttonConfig = new System.Windows.Forms.Button();
+            this.buttonConfigcs = new System.Windows.Forms.Button();
             this.buttonAJE = new System.Windows.Forms.Button();
             this.buttonUIEvent = new System.Windows.Forms.Button();
+            this.buttonConfigwin = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // buttonStart
@@ -97,15 +98,15 @@
             this.buttonRefresh.UseVisualStyleBackColor = true;
             this.buttonRefresh.Click += new System.EventHandler(this.buttonRefresh_Click);
             // 
-            // buttonConfig
+            // buttonConfigcs
             // 
-            this.buttonConfig.Location = new System.Drawing.Point(408, 57);
-            this.buttonConfig.Name = "buttonConfig";
-            this.buttonConfig.Size = new System.Drawing.Size(75, 23);
-            this.buttonConfig.TabIndex = 1;
-            this.buttonConfig.Text = "Config";
-            this.buttonConfig.UseVisualStyleBackColor = true;
-            this.buttonConfig.Click += new System.EventHandler(this.buttonConfig_Click);
+            this.buttonConfigcs.Location = new System.Drawing.Point(408, 57);
+            this.buttonConfigcs.Name = "buttonConfigcs";
+            this.buttonConfigcs.Size = new System.Drawing.Size(75, 23);
+            this.buttonConfigcs.TabIndex = 1;
+            this.buttonConfigcs.Text = "Config CS";
+            this.buttonConfigcs.UseVisualStyleBackColor = true;
+            this.buttonConfigcs.Click += new System.EventHandler(this.buttonConfigcs_Click);
             // 
             // buttonAJE
             // 
@@ -119,13 +120,23 @@
             // 
             // buttonUIEvent
             // 
-            this.buttonUIEvent.Location = new System.Drawing.Point(499, 57);
+            this.buttonUIEvent.Location = new System.Drawing.Point(597, 57);
             this.buttonUIEvent.Name = "buttonUIEvent";
             this.buttonUIEvent.Size = new System.Drawing.Size(75, 23);
             this.buttonUIEvent.TabIndex = 1;
             this.buttonUIEvent.Text = "UIEvent";
             this.buttonUIEvent.UseVisualStyleBackColor = true;
             this.buttonUIEvent.Click += new System.EventHandler(this.buttonUIEvent_Click);
+            // 
+            // buttonConfigwin
+            // 
+            this.buttonConfigwin.Location = new System.Drawing.Point(489, 57);
+            this.buttonConfigwin.Name = "buttonConfigwin";
+            this.buttonConfigwin.Size = new System.Drawing.Size(75, 23);
+            this.buttonConfigwin.TabIndex = 1;
+            this.buttonConfigwin.Text = "Config Win";
+            this.buttonConfigwin.UseVisualStyleBackColor = true;
+            this.buttonConfigwin.Click += new System.EventHandler(this.buttonConfigwin_Click);
             // 
             // TestHarness
             // 
@@ -134,7 +145,8 @@
             this.ClientSize = new System.Drawing.Size(694, 480);
             this.Controls.Add(this.richTextBox1);
             this.Controls.Add(this.buttonUIEvent);
-            this.Controls.Add(this.buttonConfig);
+            this.Controls.Add(this.buttonConfigwin);
+            this.Controls.Add(this.buttonConfigcs);
             this.Controls.Add(this.buttonAJE);
             this.Controls.Add(this.buttonRefresh);
             this.Controls.Add(this.buttonAction);
@@ -155,9 +167,10 @@
         private System.Windows.Forms.Button buttonNJE;
         private System.Windows.Forms.Button buttonAction;
         private System.Windows.Forms.Button buttonRefresh;
-        private System.Windows.Forms.Button buttonConfig;
+        private System.Windows.Forms.Button buttonConfigcs;
         private System.Windows.Forms.Button buttonAJE;
         private System.Windows.Forms.Button buttonUIEvent;
+        private System.Windows.Forms.Button buttonConfigwin;
     }
 }
 

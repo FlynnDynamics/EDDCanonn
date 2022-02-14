@@ -41,7 +41,7 @@ extern "C"
 		BSTR shiptype;
 		BSTR gamemode;
 		BSTR group;
-		long credits;
+		long long credits;
 
 		BSTR eventid;
 
@@ -57,9 +57,9 @@ extern "C"
 		BSTR cmdrfid;
 		BSTR shipident;
 		BSTR shipname;
-		long hullvalue;		
-		long rebuy;
-		long modulesvalue;		
+		unsigned long hullvalue;			// incorrect alignments in c# here produce long (32 bits)
+		unsigned long rebuy;
+		unsigned long modulesvalue;
 		bool stored;
 
 		// Version 2 ends
@@ -74,6 +74,27 @@ extern "C"
 		bool beta;		
 
 		// Version 4 ends
+
+		bool wanted;
+		bool bodyapproached;
+		bool bookeddropship;
+		bool issrv;
+		bool isfighter;
+		bool onfoot;
+		bool bookedtaxi;
+
+		// if not known "Unknown" is used
+
+		BSTR bodyname;
+		BSTR bodytype;
+		BSTR stationname;
+		BSTR stationtype;
+		BSTR stationfaction;
+		BSTR shiptypefd;
+		BSTR oncrewwithcaptain;    // empty not in multiplayer
+		long long shipid;        // ulong.maxvalue = unknown
+		int bodyid;        //  -1 not on body
+
 	};
 
 	// request history.  if isjid=false, 1 = first entry, to end entry.  If isjid=true, its the jid number.
@@ -121,7 +142,7 @@ extern "C"
 	EDD_API void EDDNewUIEvent(BSTR json);		// see EliteDangerousCore::UI for json fields.
 
 	// optional. Called at EDD termination
-	EDD_API void EDDTerminate();		
+	EDD_API void EDDTerminate();
 							
 	// optional. Called by Action DLLCall. Args could be an empty array.
 	// Return !errorstring if an error occurs, or +resultstring if all okay (which is placed in Action variable DLLResult).  Do not pass back null
@@ -129,5 +150,9 @@ extern "C"
 	
 	// optional. Called by Action DLLCall to feed a journal entry to you.
 	EDD_API void EDDActionJournalEntry(JournalEntry je);		
+
+	// optional. 
+	EDD_API BSTR EDDConfig(BSTR istr, bool editit);			
+
 }
 

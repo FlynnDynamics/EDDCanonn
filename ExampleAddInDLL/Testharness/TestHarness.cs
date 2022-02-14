@@ -19,6 +19,9 @@ namespace CHash
         EDDDLLManager mgr = new EDDDLLManager();
         string csharpappdata = @"..\..\..\appdata";
 
+        string csconfig = "csdef";
+        string winconfig = "winconfig";
+
         public TestHarness()
         {
             InitializeComponent();
@@ -105,12 +108,12 @@ namespace CHash
 
                 //var r = mgr.Load(@"..\..\..\win64dll\bin\debug", "1.2.3.4", new string[] { "HOSTNAME=TESTHARNESS","JOURNALVERSION=2" }, @"c:\code", callbacks, "All");
                 string allow = "All";
-                var r = mgr.Load(new string[] { @"..\..\..\x64\debug" }, new bool[] { false }, "1.2.3.4", options , callbacks, ref allow);
+                var r = mgr.Load(new string[] { @"..\..\..\x64\debug" }, new bool[] { false }, "1.2.3.4", options , callbacks, ref allow, (name) => winconfig, (name, set) => { winconfig = set; });
                 richTextBox1.Text += "DLL Loaded: " + r.Item1 + Environment.NewLine;
                 richTextBox1.Text += "DLL Failed: " + r.Item2 + Environment.NewLine;
                 richTextBox1.Text += "DLL Not Allowed: " + r.Item3 + Environment.NewLine;
 
-                var r2 = mgr.Load(new string[] { csharpappdata }, new bool[] { false }, "1.2.3.4", options, callbacks, ref allow);
+                var r2 = mgr.Load(new string[] { csharpappdata }, new bool[] { false }, "1.2.3.4", options, callbacks, ref allow, (name) => csconfig, (name, set) => { csconfig = set; });
                 richTextBox1.Text += "CSDLL Loaded: " + r2.Item1 + Environment.NewLine;
                 richTextBox1.Text += "CSDLL Failed: " + r2.Item2 + Environment.NewLine;
                 richTextBox1.Text += "CSDLL Not Allowed: " + r2.Item3 + Environment.NewLine;
@@ -127,8 +130,9 @@ namespace CHash
 
         private void buttonNJE_Click(object sender, EventArgs e)
         {
-            EDDDLLInterfaces.EDDDLLIF.JournalEntry nje = new EDDDLLInterfaces.EDDDLLIF.JournalEntry() { ver = 4, indexno = 19 };
+            EDDDLLInterfaces.EDDDLLIF.JournalEntry nje = new EDDDLLInterfaces.EDDDLLIF.JournalEntry() { ver = 5, indexno = 19 };
 
+            //v1
             nje.utctime = DateTime.UtcNow.ToString();
             nje.name = "EventSummary";
             nje.info = "Info";
@@ -148,24 +152,49 @@ namespace CHash
             nje.shiptype = "Anaconda";
             nje.gamemode = "Open";
             nje.group = "Fred";
-            nje.credits = 123456789;
+            nje.credits = 0xCCC12345678;
             nje.eventid = "FunEvent";
+            nje.jid = 0xAAA12345678;
             nje.totalrecords = 2001;
-            nje.jid = 101;
+
+            //v2
             nje.json = "{\"timestamp\"=\"10-20\"}";
             nje.cmdrname = "Buddy";
             nje.cmdrfid = "F19292";
             nje.shipident = "Y-1929";
             nje.shipname = "Julia";
-            nje.hullvalue = 200000;
-            nje.rebuy = 5000;
-            nje.modulesvalue = 6666;
+            nje.hullvalue = 0x12345678;
+            nje.rebuy =     0x1234000;
+            nje.modulesvalue = 0x1234111;
             nje.stored = true;
+
+            //v3
             nje.travelstate = "Travelling";
             nje.microresources = new string[] { "MR1", "MR2", "MR3" };
+
+            // v4
             nje.horizons = false;
             nje.odyssey = true;
             nje.beta = false;
+
+            //v5
+            nje.wanted = false;
+            nje.bodyapproached = true;
+            nje.bookeddropship = false;
+            nje.issrv = true;
+            nje.isfighter = false;
+            nje.onfoot = true;
+            nje.bookedtaxi = false;
+
+            nje.bodyname = "Bodyname";
+            nje.bodytype = "Bodytype";
+            nje.stationname = "stationname";
+            nje.stationtype = "stationtype";
+            nje.stationfaction = "stationfaction";
+            nje.shiptypefd = "shiptypefd";
+            nje.oncrewwithcaptain = "Captain Jack";
+            nje.shipid = 0xa1a12345678;
+            nje.bodyid = 2020;
 
             mgr.NewJournalEntry(nje, false);
 
@@ -212,22 +241,6 @@ namespace CHash
             mgr.Refresh("Jameson", nje);
             richTextBox1.Text += "Refresh" + Environment.NewLine;
 
-        }
-
-        private void buttonConfig_Click(object sender, EventArgs e)
-        {
-            var caller = mgr.FindCaller("CSharpDLL");
-            if ( caller != null)
-            {
-                string[] config = caller.GetConfig();
-                if (config != null)
-                {
-                    foreach (var x in config)
-                        richTextBox1.AppendText("C:" + x + Environment.NewLine);
-                }
-                else
-                    richTextBox1.AppendText("No config" + Environment.NewLine);
-            }
         }
 
         private void buttonAJE_Click(object sender, EventArgs e)
@@ -278,6 +291,33 @@ namespace CHash
         private void buttonUIEvent_Click(object sender, EventArgs e)
         {
             mgr.NewUIEvent("Test json");
+        }
+
+        private void buttonConfigcs_Click(object sender, EventArgs e)
+        {
+            Config("CSharpDLL", ref csconfig);
+        }
+        private void buttonConfigwin_Click(object sender, EventArgs e)
+        {
+            Config("Win64DLL",ref winconfig);
+
+        }
+
+        private void Config(string s, ref string istr)
+        {
+            var caller = mgr.FindCaller(s);
+            if (caller != null)
+            {
+                if (caller.HasConfig())
+                {
+                    string res = caller.Config(istr,true);
+                    richTextBox1.AppendText("Config ret:" + res + Environment.NewLine);
+                    istr = res;
+                }
+                else
+                    richTextBox1.AppendText("No config" + Environment.NewLine);
+            }
+
         }
     }
 }
