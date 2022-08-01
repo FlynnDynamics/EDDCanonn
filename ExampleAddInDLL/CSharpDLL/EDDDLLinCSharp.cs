@@ -36,10 +36,20 @@ namespace CSharpDLL
         {
             System.Diagnostics.Debug.WriteLine("CSharpDLL Refresh");
         }
+        public void EDDMainFormShown()
+        {
+            System.Diagnostics.Debug.WriteLine("CSharpDLL Main form shown");
+        }
 
         public void EDDNewJournalEntry(EDDDLLInterfaces.EDDDLLIF.JournalEntry je)
         {
             System.Diagnostics.Debug.WriteLine("CSharpDLL New Journal Entry " + je.utctime);
+            System.IO.File.AppendAllText(@"c:\code\csharpdll.txt", "NJE " + je.json + Environment.NewLine);
+        }
+
+        public void EDDNewUnfilteredJournalEntry(EDDDLLInterfaces.EDDDLLIF.JournalEntry je)
+        {
+            System.Diagnostics.Debug.WriteLine("CSharpDLL New Unfiltered Journal Entry " + je.utctime);
             System.IO.File.AppendAllText(@"c:\code\csharpdll.txt", "NJE " + je.json + Environment.NewLine);
         }
 

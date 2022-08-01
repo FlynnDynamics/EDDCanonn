@@ -221,30 +221,41 @@ EDD_API void EDDRefresh(BSTR Commander, JournalEntry ptr)
 	int const arraysize = 3000;
 
 	TCHAR buffer[arraysize];
-	wcscpy_s(buffer, arraysize, L"Refresh:");
+	wcscpy_s(buffer, arraysize, L"\n**** Refresh:");
 	wcscat_s(buffer, arraysize, Commander);
 	wcscat_s(buffer, arraysize, L"\n");
 	WriteUnicode(buffer);
 	WriteJournalEntry(ptr);
 }
 
+EDD_API void EDDMainFormShown()
+{
+	WriteASCII("\n**** Main form shown\n");
+}
+
 
 EDD_API void EDDNewJournalEntry(JournalEntry ptr)
 {
-	WriteASCII("NewJournalEntry:\n");
+	WriteASCII("\n**** NewJournalEntry:\n");
+	WriteJournalEntry(ptr);
+}
+
+EDD_API void EDDNewUnfilteredJournalEntry(JournalEntry ptr)
+{
+	WriteASCII("\n**** NewUnfilteredJournalEntry:\n");
 	WriteJournalEntry(ptr);
 }
 
 EDD_API void EDDNewUIEvent(BSTR str)
 {
-	WriteASCII("NewUIEvent:\n");
+	WriteASCII("\n**** NewUIEvent:\n");
 	WriteUnicode(str);
 }
 
 
 EDD_API void EDDTerminate()
 {
-	WriteASCII("Terminate\n");
+	WriteASCII("\n**** Terminate\n");
 }
 
 EDD_API BSTR EDDActionCommand(BSTR action, SAFEARRAY& args)		// should always return a string
@@ -260,7 +271,7 @@ EDD_API BSTR EDDActionCommand(BSTR action, SAFEARRAY& args)		// should always re
 	long iMax = 0;
 	SafeArrayGetUBound(&args, 1, &iMax);
 
-	StringCbPrintfW(buffer, cbDest, L"Action Command %s: %d %d: ", action, iMin, iMax);
+	StringCbPrintfW(buffer, cbDest, L"\n**** Action Command %s: %d %d: ", action, iMin, iMax);
 
 	BSTR* bstrArray;
 	HRESULT hr = SafeArrayAccessData(&args, (void**)&bstrArray);
@@ -306,7 +317,7 @@ EDD_API BSTR EDDActionCommand(BSTR action, SAFEARRAY& args)		// should always re
 	{
 		if (callbacks.RunAction != NULL)
 		{
-			WriteASCII("Run Action:\n");
+			WriteASCII("\nRun Action:\n");
 			callbacks.RunAction(bstrArray[0], bstrArray[1]);
 		}
 	}
@@ -317,7 +328,7 @@ EDD_API BSTR EDDActionCommand(BSTR action, SAFEARRAY& args)		// should always re
 EDD_API void EDDActionJournalEntry(JournalEntry ptr)
 {
 	TCHAR buffer[1000];
-	wcscpy_s(buffer, 1000, L"Journal Entry sent:\n");
+	wcscpy_s(buffer, 1000, L"\n**** Journal Entry sent:\n");
 	WriteUnicode(buffer);
 	WriteJournalEntry(ptr);
 }
@@ -326,9 +337,9 @@ EDD_API BSTR EDDConfig(BSTR istr, bool editit)
 {
 	TCHAR buffer[1000];
 	if ( editit )
-		wcscpy_s(buffer, 1000, L"Win64 Config Edit\n");
+		wcscpy_s(buffer, 1000, L"\n**** Win64 Config Edit\n");
 	else
-		wcscpy_s(buffer, 1000, L"Win64 Config\n");
+		wcscpy_s(buffer, 1000, L"\n**** Win64 Config\n");
 	WriteUnicode(buffer);
 	*istr = (((*istr)+1) % 32) + '@';	// keep on changing it
 	return SysAllocString(istr);

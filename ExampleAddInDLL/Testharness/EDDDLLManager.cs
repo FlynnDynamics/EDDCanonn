@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright © 2015 - 2020 EDDiscovery development team
+ * Copyright © 2015 - 2021 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -53,7 +53,10 @@ namespace EliteDangerousCore.DLL
                         failed = failed.AppendPrePad("DLL Folder " + dlldirectory + " does not exist", ",");
                     else
                     {
-                        FileInfo[] allFiles = Directory.EnumerateFiles(dlldirectory, "*.dll", SearchOption.TopDirectoryOnly).Select(f => new FileInfo(f)).OrderBy(p => p.LastWriteTime).ToArray();
+                        // note https://docs.microsoft.com/en-us/dotnet/api/system.io.directory.enumeratefiles?view=net-6.0 where if you use *.dll, it searches on framework for *.dll*
+
+                        FileInfo[] allFiles = Directory.EnumerateFiles(dlldirectory, "*.dll", SearchOption.TopDirectoryOnly).Where(x => Path.GetExtension(x) == ".dll")
+                                            .Select(f => new FileInfo(f)).OrderBy(p => p.LastWriteTime).ToArray();
 
                         string[] allowedfiles = alloweddisallowed.Split(',');
 
@@ -152,6 +155,15 @@ namespace EliteDangerousCore.DLL
                 caller.NewJournalEntry(nje, stored);
             }
         }
+
+        public void NewUnfilteredJournalEntry(EDDDLLInterfaces.EDDDLLIF.JournalEntry nje)
+        {
+            foreach (EDDDLLCaller caller in DLLs)
+            {
+                caller.NewUnfilteredJournalEntry(nje);
+            }
+        }
+
 
         public void NewUIEvent(string json)
         {

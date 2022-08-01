@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright © 2015 - 2020 EDDiscovery development team
+ * Copyright © 2015 - 2021 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -28,6 +28,7 @@ namespace EliteDangerousCore.DLL
         // for a standard DLL
         private IntPtr pDll = IntPtr.Zero;
         private IntPtr pNewJournalEntry = IntPtr.Zero;
+        private IntPtr pNewUnfilteredJournalEntry = IntPtr.Zero;
         private IntPtr pActionJournalEntry = IntPtr.Zero;
         private IntPtr pActionCommand = IntPtr.Zero;
         private IntPtr pConfig = IntPtr.Zero;
@@ -71,6 +72,7 @@ namespace EliteDangerousCore.DLL
                         {
                             Name = System.IO.Path.GetFileNameWithoutExtension(path);
                             pNewJournalEntry = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDNewJournalEntry");
+                            pNewUnfilteredJournalEntry = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDNewUnfilteredJournalEntry");
                             pActionJournalEntry = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDActionJournalEntry");
                             pActionCommand = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDActionCommand");
                             pConfig = BaseUtils.Win32.UnsafeNativeMethods.GetProcAddress(pDll, "EDDConfig");
@@ -306,7 +308,7 @@ namespace EliteDangerousCore.DLL
             {
                 if (AssemblyMainType.GetType().GetMethod("EDDConfig") != null)
                 {
-                    return AssemblyMainType.EDDConfig(istr,editit);
+                    return AssemblyMainType.EDDConfig(istr, editit);
                 }
             }
             else if (pDll != IntPtr.Zero && pConfig != IntPtr.Zero)
@@ -319,6 +321,29 @@ namespace EliteDangerousCore.DLL
 
             return null;
         }
+
+        public bool NewUnfilteredJournalEntry(EDDDLLInterfaces.EDDDLLIF.JournalEntry nje)
+        {
+            if (AssemblyMainType != null)
+            {
+                if (AssemblyMainType.GetType().GetMethod("EDDNewUnfilteredJournalEntry") != null)
+                {
+                    AssemblyMainType.EDDNewUnfilteredJournalEntry(nje);
+                    return true;
+                }
+            }
+            else if (pDll != IntPtr.Zero && pNewUnfilteredJournalEntry != IntPtr.Zero)
+            {
+                EDDDLLInterfaces.EDDDLLIF.EDDNewUnfilteredJournalEntry edf = (EDDDLLInterfaces.EDDDLLIF.EDDNewUnfilteredJournalEntry)Marshal.GetDelegateForFunctionPointer(
+                                                                                    pNewUnfilteredJournalEntry,
+                                                                                    typeof(EDDDLLInterfaces.EDDDLLIF.EDDNewUnfilteredJournalEntry));
+                edf(nje);
+                return true;
+            }
+
+            return false;
+        }
+
 
 
     }

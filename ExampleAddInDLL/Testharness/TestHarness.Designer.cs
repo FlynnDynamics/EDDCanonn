@@ -38,6 +38,7 @@
             this.buttonAJE = new System.Windows.Forms.Button();
             this.buttonUIEvent = new System.Windows.Forms.Button();
             this.buttonConfigwin = new System.Windows.Forms.Button();
+            this.buttonUnfilteredJE = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // buttonStart
@@ -62,9 +63,9 @@
             // 
             // richTextBox1
             // 
-            this.richTextBox1.Location = new System.Drawing.Point(27, 96);
+            this.richTextBox1.Location = new System.Drawing.Point(12, 127);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(655, 372);
+            this.richTextBox1.Size = new System.Drawing.Size(730, 419);
             this.richTextBox1.TabIndex = 2;
             this.richTextBox1.Text = "";
             // 
@@ -138,11 +139,21 @@
             this.buttonConfigwin.UseVisualStyleBackColor = true;
             this.buttonConfigwin.Click += new System.EventHandler(this.buttonConfigwin_Click);
             // 
+            // buttonUnfilteredJE
+            // 
+            this.buttonUnfilteredJE.Location = new System.Drawing.Point(27, 86);
+            this.buttonUnfilteredJE.Name = "buttonUnfilteredJE";
+            this.buttonUnfilteredJE.Size = new System.Drawing.Size(75, 23);
+            this.buttonUnfilteredJE.TabIndex = 1;
+            this.buttonUnfilteredJE.Text = "Unfilt JE";
+            this.buttonUnfilteredJE.UseVisualStyleBackColor = true;
+            this.buttonUnfilteredJE.Click += new System.EventHandler(this.buttonUnfilteredJE_Click);
+            // 
             // TestHarness
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(694, 480);
+            this.ClientSize = new System.Drawing.Size(769, 558);
             this.Controls.Add(this.richTextBox1);
             this.Controls.Add(this.buttonUIEvent);
             this.Controls.Add(this.buttonConfigwin);
@@ -150,6 +161,7 @@
             this.Controls.Add(this.buttonAJE);
             this.Controls.Add(this.buttonRefresh);
             this.Controls.Add(this.buttonAction);
+            this.Controls.Add(this.buttonUnfilteredJE);
             this.Controls.Add(this.buttonNJE);
             this.Controls.Add(this.buttonStop);
             this.Controls.Add(this.buttonStart);
@@ -171,6 +183,7 @@
         private System.Windows.Forms.Button buttonAJE;
         private System.Windows.Forms.Button buttonUIEvent;
         private System.Windows.Forms.Button buttonConfigwin;
+        private System.Windows.Forms.Button buttonUnfilteredJE;
     }
 }
 

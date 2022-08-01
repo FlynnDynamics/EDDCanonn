@@ -154,5 +154,12 @@ extern "C"
 	// optional. 
 	EDD_API BSTR EDDConfig(BSTR istr, bool editit);			
 
+	// optional. nje will always be set.  Called when a new Journal Entry received without any reorder or removal filtering
+	EDD_API void EDDNewUnfilteredJournalEntry(JournalEntry nje);
+
+	// optional. 
+	EDD_API void EDDMainFormShown();
+
+
 }
 

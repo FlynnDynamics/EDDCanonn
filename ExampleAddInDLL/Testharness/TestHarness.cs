@@ -130,6 +130,13 @@ namespace CHash
 
         private void buttonNJE_Click(object sender, EventArgs e)
         {
+            var nje = MakeJE();
+            mgr.NewJournalEntry(nje, false);
+            richTextBox1.Text += "NJE" + Environment.NewLine;
+        }
+
+        private EDDDLLInterfaces.EDDDLLIF.JournalEntry MakeJE()
+       {
             EDDDLLInterfaces.EDDDLLIF.JournalEntry nje = new EDDDLLInterfaces.EDDDLLIF.JournalEntry() { ver = 5, indexno = 19 };
 
             //v1
@@ -196,9 +203,15 @@ namespace CHash
             nje.shipid = 0xa1a12345678;
             nje.bodyid = 2020;
 
-            mgr.NewJournalEntry(nje, false);
+            return nje;
+        }
 
-            richTextBox1.Text += "NJE" + Environment.NewLine;
+        private void buttonUnfilteredJE_Click(object sender, EventArgs e)
+        {
+            var nje = MakeJE();
+            mgr.NewUnfilteredJournalEntry(nje);
+            richTextBox1.Text += "Unfiltered NJE" + Environment.NewLine;
+
         }
 
         private void buttonAction_Click(object sender, EventArgs e)
@@ -319,5 +332,6 @@ namespace CHash
             }
 
         }
+
     }
 }
