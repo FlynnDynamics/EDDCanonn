@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpDLL", "CSharpDLL\CSha
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dependency", "Dependency\Dependency.csproj", "{63397839-86A0-4EF3-8326-78A72E15F5B9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpDLL2", "CSharpDLL2\CSharpDLL2.csproj", "{ED7AEE70-37C0-46EB-A516-2BB30EDD05BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,6 +72,18 @@ Global
 		{63397839-86A0-4EF3-8326-78A72E15F5B9}.Release|x64.Build.0 = Release|Any CPU
 		{63397839-86A0-4EF3-8326-78A72E15F5B9}.Release|x86.ActiveCfg = Release|Any CPU
 		{63397839-86A0-4EF3-8326-78A72E15F5B9}.Release|x86.Build.0 = Release|Any CPU
+		{ED7AEE70-37C0-46EB-A516-2BB30EDD05BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED7AEE70-37C0-46EB-A516-2BB30EDD05BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED7AEE70-37C0-46EB-A516-2BB30EDD05BB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{ED7AEE70-37C0-46EB-A516-2BB30EDD05BB}.Debug|x64.Build.0 = Debug|Any CPU
+		{ED7AEE70-37C0-46EB-A516-2BB30EDD05BB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{ED7AEE70-37C0-46EB-A516-2BB30EDD05BB}.Debug|x86.Build.0 = Debug|Any CPU
+		{ED7AEE70-37C0-46EB-A516-2BB30EDD05BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED7AEE70-37C0-46EB-A516-2BB30EDD05BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED7AEE70-37C0-46EB-A516-2BB30EDD05BB}.Release|x64.ActiveCfg = Release|Any CPU
+		{ED7AEE70-37C0-46EB-A516-2BB30EDD05BB}.Release|x64.Build.0 = Release|Any CPU
+		{ED7AEE70-37C0-46EB-A516-2BB30EDD05BB}.Release|x86.ActiveCfg = Release|Any CPU
+		{ED7AEE70-37C0-46EB-A516-2BB30EDD05BB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
