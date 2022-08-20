@@ -48,6 +48,21 @@
   <ItemGroup>
     <Compile Include="EDDDLLinCSharp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QuickJSON\Extensions.cs" />
+    <Compile Include="QuickJSON\IStringParserQuick.cs" />
+    <Compile Include="QuickJSON\QuickJSON.cs" />
+    <Compile Include="QuickJSON\QuickJSONArray.cs" />
+    <Compile Include="QuickJSON\QuickJSONDeepEquals.cs" />
+    <Compile Include="QuickJSON\QuickJSONFromObject.cs" />
+    <Compile Include="QuickJSON\QuickJSONGets.cs" />
+    <Compile Include="QuickJSON\QuickJSONObject.cs" />
+    <Compile Include="QuickJSON\QuickJSONObjectFilter.cs" />
+    <Compile Include="QuickJSON\QuickJSONParse.cs" />
+    <Compile Include="QuickJSON\QuickJSONTokenReader.cs" />
+    <Compile Include="QuickJSON\QuickJSONToObject.cs" />
+    <Compile Include="QuickJSON\QuickJSONToString.cs" />
+    <Compile Include="QuickJSON\StringParserQuick.cs" />
+    <Compile Include="QuickJSON\StringParserQuickTextReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Dependency\Dependency.csproj">

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dependency;
+using QuickJSON;
 
 namespace CSharpDLL
 {
@@ -72,13 +73,20 @@ namespace CSharpDLL
 
         public string EDDConfig(string istr, bool editit)
         {
+            JObject js = JObject.Parse(istr);
+            string para = js != null ? js["Para1"].Str("Default") : "Default";
+
             if ( editit)
             {
-                istr  = Prompt.ShowDialog("Data:","Message box for config", istr);
+                para  = Prompt.ShowDialog("Data:","Message box for config", para);
             }
-            
-            System.Diagnostics.Debug.WriteLine("CSharpDLL EDD Config Event:" + istr);
-            return istr;
+
+            JObject jout = new JObject();
+            jout["Para1"] = para;
+            string outconfig = jout.ToString();
+           
+            System.Diagnostics.Debug.WriteLine("CSharpDLL EDD Config Event:" + outconfig);
+            return outconfig;
         }
 
 
