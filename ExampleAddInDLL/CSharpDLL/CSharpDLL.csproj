@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CSharpDLL</RootNamespace>
     <AssemblyName>CSharpDLL</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -72,7 +73,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy csharpdll.dll ..\..\appdata
+    <PostBuildEvent>echo Copying DLL to ..\..\appdata and %25USERNAME%25\appdata\local\eddiscovery\
+copy csharpdll.dll ..\..\appdata
 copy dependency.dll ..\..\appdata
 
 copy csharpdll.dll c:\users\%25USERNAME%25\appdata\local\eddiscovery\dll

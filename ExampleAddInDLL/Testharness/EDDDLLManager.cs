@@ -55,7 +55,7 @@ namespace EliteDangerousCore.DLL
                     {
                         // note https://docs.microsoft.com/en-us/dotnet/api/system.io.directory.enumeratefiles?view=net-6.0 where if you use *.dll, it searches on framework for *.dll*
 
-                        FileInfo[] allFiles = Directory.EnumerateFiles(dlldirectory, "*.dll", SearchOption.TopDirectoryOnly).Where(x => Path.GetExtension(x) == ".dll")
+                        FileInfo[] allFiles = Directory.EnumerateFiles(dlldirectory, "*.dll", SearchOption.TopDirectoryOnly).Where(x=>Path.GetExtension(x)==".dll") 
                                             .Select(f => new FileInfo(f)).OrderBy(p => p.LastWriteTime).ToArray();
 
                         string[] allowedfiles = alloweddisallowed.Split(',');
@@ -145,6 +145,13 @@ namespace EliteDangerousCore.DLL
             foreach (EDDDLLCaller caller in DLLs)
             {
                 caller.Refresh(cmdr, je);
+            }
+        }
+        public void Shown()
+        {
+            foreach (EDDDLLCaller caller in DLLs)
+            {
+                caller.Shown();
             }
         }
 

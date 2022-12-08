@@ -1,1 +1,1 @@
-This interface definition comes from Main program
+This interface definition comes from the EliteDangerousCore program

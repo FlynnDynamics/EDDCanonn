@@ -20,6 +20,20 @@ namespace CSharpDLL2
             return "1.0.0.0";
         }
 
+        public void EDDRefresh(string cmdname, EDDDLLInterfaces.EDDDLLIF.JournalEntry lastje)
+        {
+            System.Diagnostics.Debug.WriteLine("CSharpDLL2 Refresh");
+        }
+        public void EDDMainFormShown()
+        {
+            System.Diagnostics.Debug.WriteLine("CSharpDLL2 Main form shown");
+        }
+
+        public void EDDNewJournalEntry(EDDDLLInterfaces.EDDDLLIF.JournalEntry je)
+        {
+            System.Diagnostics.Debug.WriteLine("CSharpDLL2 New Journal Entry " + je.utctime);
+        }
+
 
         public void EDDTerminate()
         {

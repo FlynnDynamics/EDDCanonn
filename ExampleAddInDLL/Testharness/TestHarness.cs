@@ -89,6 +89,10 @@ namespace CHash
         {
             return "Ship JSON";
         }
+        public void AddPanel(string id, Type paneltype, string wintitle, string refname, string description, System.Drawing.Image img)
+        {
+            System.Diagnostics.Debug.WriteLine($"DLL wanted to add panel {id} {paneltype} {wintitle} {refname} {description}");
+        }
 
         public EDDDLLInterfaces.EDDDLLIF.EDDCallBacks callbacks = new EDDDLLInterfaces.EDDDLLIF.EDDCallBacks();
 
@@ -96,12 +100,13 @@ namespace CHash
         {
             if (mgr.Count == 0)
             {
-                callbacks.ver = 2;
+                callbacks.ver = 3;
                 callbacks.RequestHistory = RequestHistory;
                 callbacks.RunAction = RunAction;
                 callbacks.GetShipLoadout = GetShipLoadout;
+                callbacks.AddPanel = AddPanel;
 
-                string[] options = new string[] { EDDDLLInterfaces.EDDDLLIF.FLAG_HOSTNAME + "EDLITE",
+                string[] options = new string[] { EDDDLLInterfaces.EDDDLLIF.FLAG_HOSTNAME + "EDDiscovery",
                                               EDDDLLInterfaces.EDDDLLIF.FLAG_JOURNALVERSION + "2",
                                               EDDDLLInterfaces.EDDDLLIF.FLAG_CALLBACKVERSION + "2",
                                             };
