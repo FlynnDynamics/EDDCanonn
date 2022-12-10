@@ -18,11 +18,12 @@ using System.Drawing;
 using System.Windows.Forms;
 using static EDDDLLInterfaces.EDDDLLIF;
 
-namespace EliteDangerous.DLL
+namespace DemoUserControl
 {
     public partial class DemonstrationUserControl : UserControl, IEDDPanelExtension
     {
-        private EDDPanelCallbacks callbacks;
+        private EDDPanelCallbacks PanelCallBack;
+        private EDDDLLInterfaces.EDDDLLIF.EDDCallBacks DLLCallBack;
 
         public DemonstrationUserControl()
         {
@@ -36,28 +37,29 @@ namespace EliteDangerous.DLL
 
         Color FromJson(JToken color) { return Color.FromArgb(color["A"].Int(), color["R"].Int(), color["G"].Int(), color["B"].Int()); }
 
-        public void Initialise(EDDPanelCallbacks callbacks, string themeasjson, string configurationunsed)
+        public void Initialise(EDDPanelCallbacks callbacks, int displayid, string themeasjson, string configuration)
         {
-            this.callbacks = callbacks;
+            DLLCallBack = CSharpDLLPanel2.CSharpDLLPanelEDDClass.DLLCallBack;       // grab the DLL call back
+            this.PanelCallBack = callbacks;
 
             ThemeChanged(themeasjson);
 
             dataGridView1.Rows.Add(new string[] { "Event grid", "1-1", "1-2" ,"1-3"});
             richTextBox1.AppendText("New Panel init\r\n");
-            callbacks.WriteToLogHighlight("Demo DLL Initialised");
+            DLLCallBack.WriteToLogHighlight("Demo DLL Initialised");
         }
         public void SetTransparency(bool ison, Color curcol)
         {
             richTextBox1.AppendText($"Set Transparency {ison}\r\n");
             this.BackColor = panel1.BackColor = curcol;
-            callbacks.DGVTransparent(dataGridView1, ison, curcol);
+            PanelCallBack.DGVTransparent(dataGridView1, ison, curcol);
         }
 
         public void LoadLayout()
         {
             richTextBox1.AppendText("load layout\r\n");
-            callbacks.SetControlText("Ext Panel!");
-            callbacks.LoadGridLayout(dataGridView1);
+            PanelCallBack.SetControlText("Ext Panel!");
+            PanelCallBack.LoadGridLayout(dataGridView1);
         }
 
         public void InitialDisplay()
@@ -72,9 +74,9 @@ namespace EliteDangerous.DLL
 
         public void Closing()
         {
-            richTextBox1.AppendText($"close panel {callbacks.IsClosed()}\r\n");
-            callbacks.SaveString("Textbox1", textBox1.Text);
-            callbacks.SaveGridLayout(dataGridView1);
+            richTextBox1.AppendText($"close panel {PanelCallBack.IsClosed()}\r\n");
+            PanelCallBack.SaveString("Textbox1", textBox1.Text);
+            PanelCallBack.SaveGridLayout(dataGridView1);
         }
 
         void IEDDPanelExtension.CursorChanged(JournalEntry je)          // called when the history cursor changes.. tells you where the user is looking at
@@ -99,22 +101,21 @@ namespace EliteDangerous.DLL
 
             for( int i = 5; i > 0; i-- )    // demo - load last 5 HEs
             {
-                JournalEntry je = callbacks.GetHistoryEntry(count - i);
-                if (je.indexno >= 0)
-                {
+                if ( DLLCallBack.RequestHistory(count-i,false,out JournalEntry je) )
+                { 
                     dataGridView1.Rows.Add(new string[] { je.utctime, je.name, je.info, je.detailedinfo });
                 }
                 else
                     break;
             }
 
-            var target = callbacks.GetTarget();
+            var target = DLLCallBack.GetTarget();
             if (target != null)
-                richTextBox1.AppendText($"Target is {target.Item1} {target.Item2} {target.Item3} {target.Item4}\r\n");
+                richTextBox1.AppendText($"Target is {target}\r\n");
             else
                 richTextBox1.AppendText($"No Target\r\n");
 
-            callbacks.WriteToLog("Demo DLL User Control History Changed");
+            DLLCallBack.WriteToLog("Demo DLL User Control History Changed");
         }
 
         public void NewUnfilteredJournal(JournalEntry je)
@@ -157,15 +158,15 @@ namespace EliteDangerous.DLL
             Color butbordercolor = FromJson(theme["ButtonBorderColor"]);
             Color butforecolor = FromJson(theme["ButtonTextColor"]);
             Color butbackcolor = FromJson(theme["ButtonBackColor"]);
-            button1.ForeColor = butforecolor;
-            button1.FlatAppearance.BorderColor = butbordercolor;
-            button1.BackColor = butbackcolor;
+            buttonShipLoadout.ForeColor = butforecolor;
+            buttonShipLoadout.FlatAppearance.BorderColor = butbordercolor;
+            buttonShipLoadout.BackColor = butbackcolor;
 
             Color textbordercolor = FromJson(theme["TextBlockBorderColor"]);
             Color textforecolor = FromJson(theme["TextBlockColor"]);
             Color textbackcolor = FromJson(theme["TextBackColor"]);
 
-            textBox1.Text = callbacks.GetString("Textbox1", "Default");
+            textBox1.Text = PanelCallBack.GetString("Textbox1", "Default");
             textBox1.BackColor = textbackcolor;
             textBox1.ForeColor = textforecolor;
             textBox1.BorderStyle = BorderStyle.FixedSingle;
@@ -179,8 +180,82 @@ namespace EliteDangerous.DLL
 
             Color formbackcolor = FromJson(theme["Form"]);
 
-            callbacks.DGVTransparent(dataGridView1, false, formbackcolor); // presuming its not transparent.. would need to make this more clever by saving Settransparent state
+            PanelCallBack.DGVTransparent(dataGridView1, false, formbackcolor); // presuming its not transparent.. would need to make this more clever by saving Settransparent state
         }
+
+        private void buttonShipLoadout_Click(object sender, EventArgs e)
+        {
+            string loadout = DLLCallBack.GetShipLoadout("");        // current ship
+            richTextBox1.AppendText($"Loadout {loadout}\r\n");
+            richTextBox1.ScrollToCaret();
+        }
+
+        private void buttonAllShips_Click(object sender, EventArgs e)
+        {
+            string loadout = DLLCallBack.GetShipLoadout("all");      
+            richTextBox1.AppendText($"Loadout {loadout}\r\n");
+            richTextBox1.ScrollToCaret();
+
+        }
+
+        private void buttonAspShip_Click(object sender, EventArgs e)
+        {
+            string loadout = DLLCallBack.GetShipLoadout("Asp");
+            richTextBox1.AppendText($"Loadout {loadout}\r\n");
+            richTextBox1.ScrollToCaret();
+        }
+
+        private void buttonCurrentSys_Click(object sender, EventArgs e)
+        {
+            DLLCallBack.RequestScanData(null,this, "",true);
+        }
+
+        private void buttonSys1_Click(object sender, EventArgs e)
+        {
+            DLLCallBack.RequestScanData(null,this,"Shumbeia ZK-Z c28-3", false);
+        }
+
+        public void DataResult(string data)
+        {
+            richTextBox1.AppendText($"System {data}\r\n");
+            richTextBox1.ScrollToCaret();
+        }
+
+        private void buttonSuits_Click(object sender, EventArgs e)
+        {
+            string loadout = DLLCallBack.GetSuitsWeaponsLoadouts();
+            richTextBox1.AppendText($"Suits {loadout}\r\n");
+            richTextBox1.ScrollToCaret();
+        }
+
+        private void buttonOutfitting_Click(object sender, EventArgs e)
+        {
+            string loadout = DLLCallBack.GetOutfitting();
+            richTextBox1.AppendText($"Outfitting {loadout}\r\n");
+            richTextBox1.ScrollToCaret();
+        }
+
+        private void buttonShipyards_Click(object sender, EventArgs e)
+        {
+            string loadout = DLLCallBack.GetShipyards();
+            richTextBox1.AppendText($"Shipyards {loadout}\r\n");
+            richTextBox1.ScrollToCaret();
+        }
+
+        private void buttonVisited_Click(object sender, EventArgs e)
+        {
+            string loadout = DLLCallBack.GetVisitedList(7204);
+            richTextBox1.AppendText($"Visited {loadout.Substring(0,Math.Min(30000,loadout.Length))}..\r\n");
+            richTextBox1.ScrollToCaret();
+        }
+
+        private void buttonCarrier_Click(object sender, EventArgs e)
+        {
+            string loadout = DLLCallBack.GetCarrierData();
+            richTextBox1.AppendText($"Carrier {loadout}\r\n");
+            richTextBox1.ScrollToCaret();
+        }
+
     }
 }
 

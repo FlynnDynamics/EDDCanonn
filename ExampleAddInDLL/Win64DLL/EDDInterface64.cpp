@@ -14,7 +14,7 @@ using namespace std;
 
 void WriteASCII(const char* str)		// ASCII file..
 {
-	fstream fstream("c:\\code\\eddif.txt", ios::app);         // open the file
+	fstream fstream("c:\\code\\eddif-dec22.txt", ios::app);         // open the file
 	fstream << str;
 	fstream.close();
 }

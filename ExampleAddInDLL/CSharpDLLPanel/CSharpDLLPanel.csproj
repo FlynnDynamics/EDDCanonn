@@ -76,8 +76,8 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>echo Copying DLL to ..\..\..\appdata and c:\users\%25USERNAME%25\appdata\local\eddiscovery\dll
-copy csharpdllpanel.dll ..\..\..\appdata
+copy csharpdllpanel*.dll ..\..\..\appdata
 
-copy csharpdllpanel.dll c:\users\%25USERNAME%25\appdata\local\eddiscovery\dll</PostBuildEvent>
+copy csharpdllpanel*.* c:\users\%25USERNAME%25\appdata\local\eddiscovery\dll</PostBuildEvent>
   </PropertyGroup>
 </Project>
