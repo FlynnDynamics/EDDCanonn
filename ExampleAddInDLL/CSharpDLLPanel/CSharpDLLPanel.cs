@@ -21,8 +21,9 @@ namespace CSharpDLLPanel2
             System.Diagnostics.Debug.WriteLine("CSharpDLLPanel2 Init func " + vstr + " " + dllfolder);
             if ( cb.ver>=3 && cb.AddPanel != null)
             {
-                cb.AddPanel("CSharpDLLPanel-Example-0.0.1", typeof(DemoUserControl.DemonstrationUserControl), "CSDemo1A", "CSDemo1A", "CS Demo user panel", CSharpDLLPanel.Properties.Resources.CaptainsLog);
-                //cb.AddPanel("CSharpDLLPanel-Example-0.0.2", typeof(DemoUserControl.DemonstrationUserControl), "CSDemo2", "CSDemo2", "CS Demo 2 user panel", CSharpDLLPanel.Properties.Resources.CaptainsLog);
+                // make sure panel unique id and winref name is based on a producer-panel naming system to make it unique
+                string uniquename = "CSharpDLLPanel-Demo1";
+                cb.AddPanel(uniquename, typeof(DemoUserControl.DemonstrationUserControl), "DLLUC-1", uniquename, "UC DLL Demo user panel", CSharpDLLPanel.Properties.Resources.CaptainsLog);
             }
             return "1.0.0.0";
         }

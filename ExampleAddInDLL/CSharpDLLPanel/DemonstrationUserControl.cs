@@ -245,7 +245,7 @@ namespace DemoUserControl
         private void buttonVisited_Click(object sender, EventArgs e)
         {
             string loadout = DLLCallBack.GetVisitedList(7204);
-            richTextBox1.AppendText($"Visited {loadout.Substring(0,Math.Min(30000,loadout.Length))}..\r\n");
+            richTextBox1.AppendText($"Visited {loadout.Substring(0, Math.Min(30000, loadout.Length))}..\r\n");
             richTextBox1.ScrollToCaret();
         }
 
@@ -256,6 +256,10 @@ namespace DemoUserControl
             richTextBox1.ScrollToCaret();
         }
 
+        public void TransparencyModeChanged(bool on)
+        {
+            richTextBox1.AppendText($"Transparent mode {on}\r\n");
+        }
     }
 }
 
