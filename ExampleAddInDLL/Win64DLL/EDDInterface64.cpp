@@ -14,7 +14,7 @@ using namespace std;
 
 void WriteASCII(const char* str)		// ASCII file..
 {
-	fstream fstream("c:\\code\\eddif-dec22.txt", ios::app);         // open the file
+	fstream fstream("c:\\code\\eddif.txt", ios::app);         // open the file
 	fstream << str;
 	fstream.close();
 }
@@ -41,7 +41,7 @@ void WriteJournalEntry(JournalEntry ptr)
 
 	if (ptr.ver >= 1)
 	{
-		LPCTSTR pszFormat = TEXT("Version %d : UTC %s: %d:%s\nSummary:'%s'\nInfo:'%s'\nDetailed:'%s'\nSystem %s @ x%f y%f z%f\ntdist %f tsecs %u | landed %d docked %d | whereami '%s' ship '%s' gamemode %s (%s) | %llx cr | jid %llx rec %d\n");
+		LPCTSTR pszFormat = TEXT("Version %d : UTC %s: %d:%s\nSummary:'%s'\nInfo:'%s'\nDetailed:'%s'\nSystem %s @ x%f y%f z%f\ntdist %f tsecs %u | landed %d docked %d | whereami '%s' ship '%s' gamemode %s group `%s` | %lld cr | jid %lld rec %d\n");
 		TCHAR linebuf[1000];
 		StringCbPrintfW(linebuf, sizeof(linebuf), pszFormat,
 			ptr.ver,
@@ -193,6 +193,33 @@ void WriteJournalEntry(JournalEntry ptr)
 		StringCbPrintfW(linebuf, sizeof(linebuf), pszFormat,
 			ptr.wanted, ptr.bodyapproached, ptr.bookeddropship, ptr.issrv, ptr.isfighter, ptr.onfoot, ptr.bookedtaxi,
 			ptr.bodyname, ptr.bodytype, ptr.stationname, ptr.stationtype, ptr.stationfaction, ptr.shiptypefd, ptr.oncrewwithcaptain, ptr.shipid, ptr.bodyid);
+		wcscat_s(buffer, arraysize, linebuf);
+	}
+
+	if (ptr.ver >= 6)
+	{
+		LPCTSTR pszFormat = TEXT(
+			"V6: gv %s gb %s\n"
+		);
+		TCHAR linebuf[1000];
+		StringCbPrintfW(linebuf, sizeof(linebuf), pszFormat,
+			ptr.gameversion, ptr.gamebuild);
+		wcscat_s(buffer, arraysize, linebuf);
+	}
+
+	if (ptr.ver >= 7)
+	{
+		LPCTSTR pszFormat = TEXT(
+			"V7: fsdns %s fsdnextsysaddr %lld\n"
+			"sa %lld marketid %lld fullbodyid %lld loan %lld assets %lld\n"
+			"cb %f visits %d mp %d insuper %d\n"
+		);
+		TCHAR linebuf[1000];
+		StringCbPrintfW(linebuf, sizeof(linebuf), pszFormat,
+			ptr.fsdjumpnextsystemname,ptr.fsdjumpnextsystemaddress,
+			ptr.systemaddress,ptr.marketid,ptr.fullbodyid,ptr.loan,ptr.assets,
+			ptr.currentboost,ptr.visits,ptr.multiplayer,ptr.insupercruise
+		);
 		wcscat_s(buffer, arraysize, linebuf);
 	}
 

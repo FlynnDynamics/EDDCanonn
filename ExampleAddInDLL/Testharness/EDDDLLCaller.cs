@@ -61,8 +61,9 @@ namespace EliteDangerousCore.DLL
                         }
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    System.Diagnostics.Debug.WriteLine("Exception loading c# DLL {ex}");
                     pDll = BaseUtils.Win32.UnsafeNativeMethods.LoadLibrary(path);
 
                     if (pDll != IntPtr.Zero)

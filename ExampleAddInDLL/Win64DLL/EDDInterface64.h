@@ -95,6 +95,26 @@ extern "C"
 		long long shipid;        // ulong.maxvalue = unknown
 		int bodyid;        //  -1 not on body
 
+		// version 5 ends
+
+		BSTR gameversion;
+		BSTR gamebuild;
+
+		// version 6 ends
+
+		BSTR fsdjumpnextsystemname;
+		long long fsdjumpnextsystemaddress;
+		long long systemaddress;
+		long long marketid;
+		long long fullbodyid;
+		long long loan;
+		long long assets;
+		double currentboost;
+		int visits;
+		bool multiplayer;
+		bool insupercruise;
+
+		// version 7 ends
 	};
 
 	// request history.  if isjid=false, 1 = first entry, to end entry.  If isjid=true, its the jid number.

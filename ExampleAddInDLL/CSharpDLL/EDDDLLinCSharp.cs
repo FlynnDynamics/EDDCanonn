@@ -44,7 +44,16 @@ namespace CSharpDLL
 
         public void EDDNewJournalEntry(EDDDLLInterfaces.EDDDLLIF.JournalEntry je)
         {
-            System.Diagnostics.Debug.WriteLine("CSharpDLL New Journal Entry " + je.utctime);
+            System.Diagnostics.Debug.WriteLine($"CSharpDLL New Journal Entry {je.ver} at {je.utctime}");
+            System.Diagnostics.Debug.WriteLine($"V1:{je.name} {je.systemname} {je.x} {je.y} {je.z}");
+            System.Diagnostics.Debug.WriteLine($"   info: {je.info} ");
+            System.Diagnostics.Debug.WriteLine($"   Mat: {string.Join(",", je.materials)} ");
+            System.Diagnostics.Debug.WriteLine($"   Comms: {string.Join(",", je.commodities)} ");
+            // etc
+            System.Diagnostics.Debug.WriteLine($"V6:GV `{je.gameversion}` GB `{je.gamebuild}`");
+            System.Diagnostics.Debug.WriteLine($"V7:FSDN `{je.fsdjumpnextsystemname}` ADDR {je.fsdjumpnextsystemaddress} SA {je.systemaddress} Mid {je.marketid}");
+            System.Diagnostics.Debug.WriteLine($"   FBID {je.fullbodyid} Loan {je.loan} assets {je.assets} CB {je.currentboost} VS {je.visits} MP {je.multiplayer} ISUPER {je.insupercruise}");
+
             System.IO.File.AppendAllText(@"c:\code\csharpdll.txt", "NJE " + je.json + Environment.NewLine);
         }
 
