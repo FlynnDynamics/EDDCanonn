@@ -7,8 +7,8 @@
     <ProjectGuid>{4CFD7517-ED23-4B4D-94BD-5DE7BF75F0E3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CSharpDLLPanel</RootNamespace>
-    <AssemblyName>CSharpDLLPanel</AssemblyName>
+    <RootNamespace>EDDCanonn</RootNamespace>
+    <AssemblyName>EDDCanonn</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -46,27 +46,37 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EDDCanonn.cs" />
+    <Compile Include="EDDCanonnUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="QuickJson\QuickJSON.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="EDDCanonnUserControl.resx">
+      <DependentUpon>EDDCanonnUserControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Resources\" />
+    <Content Include="Resources\canonn.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>echo Copying DLL to ..\..\..\appdata and c:\users\%25USERNAME%25\appdata\local\eddiscovery\dll
-copy csharpdllpanel*.dll ..\..\..\appdata
+copy EDDCanonn*.dll ..\..\..\appdata
 
-copy csharpdllpanel*.* c:\users\%25USERNAME%25\appdata\local\eddiscovery\dll</PostBuildEvent>
+copy EDDCanonn*.* c:\users\%25USERNAME%25\appdata\local\eddiscovery\dll</PostBuildEvent>
   </PropertyGroup>
 </Project>
