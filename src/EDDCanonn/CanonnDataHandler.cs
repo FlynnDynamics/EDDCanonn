@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -44,14 +44,8 @@ namespace EDDCanonn
             });
         }
 
-        public List<Task> _tasks { get; }
-
-        public CanonnDataHandler()
-        {
-            _tasks = new List<Task>();
-        }
-
-        private void StartTask(Action job)
+        private readonly ConcurrentQueue<Task> _tasks = new ConcurrentQueue<Task>();
+        public void StartTask(Action job)
         {
             Task task = Task.Run(() =>
             {
@@ -65,8 +59,19 @@ namespace EDDCanonn
                     throw;
                 }
             });
-            _tasks.Add(task);
+            _tasks.Enqueue(task);
+            task.ContinueWith(t =>
+            {
+                _tasks.TryDequeue(out _); ;
+                Console.WriteLine($"Task {t.Id} {t.Status}");
+            });
         }
+
+        public void Closing()
+        {
+            Task.WaitAll(_tasks.ToArray());
+        }
+
 
         // Performs a GET request to the specified endpoint
         private string PerformGetRequest(string fullUrl)
