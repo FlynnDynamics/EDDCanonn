@@ -4,9 +4,8 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.Collections.Generic;
 using QuickJSON;
-using System.Threading;
-using System.Linq;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace EDDCanonn
 {
@@ -35,6 +34,7 @@ namespace EDDCanonn
         {
             try
             {
+                // Fetch the whitelist from a remote source
                 dataHandler.FetchCanonnAsync(CanonnHelper.WhitelistUrl,
                 jsonResponse =>
                 {
@@ -42,28 +42,10 @@ namespace EDDCanonn
                     {
                         JArray whitelistItems = jsonResponse.JSONParse().Array();
 
-                        if (whitelistItems != null)
-                        {
-                            foreach (JObject item in whitelistItems)
-                            {
-                                string definition = item["definition"].Str();
-                                if (string.IsNullOrEmpty(definition))
-                                {
-                                    Console.Error.WriteLine("Skipping empty definition.");
-                                    continue;
-                                }
+                        if (whitelistItems == null)
+                            return;
 
-                                try
-                                {
-                                    JObject definitionObject = definition.JSONParse().Object();
-                                    AddToWhitelist(definitionObject);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.Error.WriteLine($"Error parsing definition: {definition}. Exception: {ex.Message}");
-                                }
-                            }
-                        }
+                        AddToWhitelist(whitelistItems);
                     }
                     catch (Exception ex)
                     {
@@ -81,12 +63,85 @@ namespace EDDCanonn
             }
         }
 
-        private void AddToWhitelist(JObject definitionObject)
+        private void AddToWhitelist(JArray whitelistItems)
         {
-           
+            // Build the in-memory whitelist
+            for (int i = 0; i < whitelistItems.Count; i++)
+            {
+                JObject itemObject = whitelistItems[i].Object();
+                string definitionRaw = itemObject["definition"].Str();
+                if (string.IsNullOrEmpty(definitionRaw))
+                    continue;
+
+                JObject definitionObject = definitionRaw.JSONParse().Object();
+
+                // Default key to identify the type
+                string typeKey = "event";
+                string typeValue = definitionObject[typeKey].Str();
+
+                if (typeValue == "")
+                    typeValue = "undefined";
+
+                WhitelistEvent existingEvent = null;
+                for (int e = 0; e < _globalWhitelist.Events.Count; e++)
+                {
+                    if (_globalWhitelist.Events[e].Type.Equals(typeValue, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        existingEvent = _globalWhitelist.Events[e];
+                        break;
+                    }
+                }
+
+                if (existingEvent == null)
+                {
+                    existingEvent = new WhitelistEvent();
+                    existingEvent.Type = typeValue;
+                    _globalWhitelist.Events.Add(existingEvent);
+                }
+
+                Dictionary<string, object> dataBlock = new Dictionary<string, object>();
+                List<string> keys = new List<string>(definitionObject.PropertyNames());
+
+                // Collect every property except the type key
+                for (int kk = 0; kk < keys.Count; kk++)
+                {
+                    string key = keys[kk];
+                    if (key.Equals(typeKey, StringComparison.InvariantCultureIgnoreCase))
+                        continue;
+
+                    object val = definitionObject[key].Value;
+                    dataBlock[key] = val;
+                }
+
+                if (dataBlock.Count > 0)
+                    existingEvent.DataBlocks.Add(dataBlock);
+            }
+        }
+
+        private WhitelistData _globalWhitelist = new WhitelistData();
+
+        public class WhitelistData
+        {
+            // Holds all events of various types
+            public List<WhitelistEvent> Events { get; set; }
+
+            public WhitelistData()
+            {
+                Events = new List<WhitelistEvent>();
+            }
+        }
+
+        public class WhitelistEvent
+        {
+            public string Type { get; set; }
+            public List<Dictionary<string, object>> DataBlocks { get; set; }
+
+            public WhitelistEvent()
+            {
+                DataBlocks = new List<Dictionary<string, object>>();
+            }
         }
         #endregion
-
 
         #region IEDDPanelExtension
         public bool SupportTransparency => false;
@@ -100,7 +155,7 @@ namespace EDDCanonn
 
         public void Closing()
         {
-            Task.WaitAll(dataHandler._tasks.ToArray());
+            dataHandler.Closing();
         }
 
         public void ControlTextVisibleChange(bool on)
@@ -115,7 +170,7 @@ namespace EDDCanonn
 
         public void HistoryChange(int count, string commander, bool beta, bool legacy)
         {
-           
+
         }
 
         public void InitialDisplay()
