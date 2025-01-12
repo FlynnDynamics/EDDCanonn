@@ -3,11 +3,11 @@ using System.Diagnostics;
 
 namespace EDDCanonn
 {
-    public class EDDCanonnClass
+    public class EDDCanonnEDDClass
     {
         public static EDDDLLInterfaces.EDDDLLIF.EDDCallBacks DLLCallBack;
 
-        public EDDCanonnClass()
+        public EDDCanonnEDDClass()
         {
             Debug.WriteLine("EDDCanonn Made DLL instance");
         }

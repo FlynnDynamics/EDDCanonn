@@ -2,23 +2,93 @@
 using static EDDDLLInterfaces.EDDDLLIF;
 using System.Windows.Forms;
 using System.Drawing;
-using System.Diagnostics;
+using System.Collections.Generic;
+using QuickJSON;
+using System.Threading;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EDDCanonn
 {
     partial class EDDCanonnUserControl : UserControl, IEDDPanelExtension
     {
-
+        private CanonnDataHandler dataHandler;
         private EDDPanelCallbacks PanelCallBack;
-        private EDDDLLInterfaces.EDDDLLIF.EDDCallBacks DLLCallBack;
+        private EDDCallBacks DLLCallBack;
+
 
         public EDDCanonnUserControl()
         {
-           InitializeComponent();
+            InitializeComponent();
+            Init();
         }
 
-        //###### IEDDPanelExtension ######
+        private void Init()
+        {
+            dataHandler = new CanonnDataHandler();
+            InitializeWhitelist();
+        }
 
+
+        #region WhiteList
+        private void InitializeWhitelist()
+        {
+            try
+            {
+                dataHandler.FetchCanonnAsync(CanonnHelper.WhitelistUrl,
+                jsonResponse =>
+                {
+                    try
+                    {
+                        JArray whitelistItems = jsonResponse.JSONParse().Array();
+
+                        if (whitelistItems != null)
+                        {
+                            foreach (JObject item in whitelistItems)
+                            {
+                                string definition = item["definition"].Str();
+                                if (string.IsNullOrEmpty(definition))
+                                {
+                                    Console.Error.WriteLine("Skipping empty definition.");
+                                    continue;
+                                }
+
+                                try
+                                {
+                                    JObject definitionObject = definition.JSONParse().Object();
+                                    AddToWhitelist(definitionObject);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.Error.WriteLine($"Error parsing definition: {definition}. Exception: {ex.Message}");
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Error processing whitelist: {ex.Message}");
+                    }
+                },
+                ex =>
+                {
+                    Console.Error.WriteLine($"Error fetching whitelist: {ex.Message}");
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Unexpected error in InitializeWhitelist: {ex.Message}");
+            }
+        }
+
+        private void AddToWhitelist(JObject definitionObject)
+        {
+           
+        }
+        #endregion
+
+
+        #region IEDDPanelExtension
         public bool SupportTransparency => false;
 
         public bool DefaultTransparent => false;
@@ -30,7 +100,7 @@ namespace EDDCanonn
 
         public void Closing()
         {
-            throw new NotImplementedException();
+            Task.WaitAll(dataHandler._tasks.ToArray());
         }
 
         public void ControlTextVisibleChange(bool on)
@@ -45,43 +115,46 @@ namespace EDDCanonn
 
         public void HistoryChange(int count, string commander, bool beta, bool legacy)
         {
-            throw new NotImplementedException();
+           
         }
 
         public void InitialDisplay()
         {
-            throw new NotImplementedException();
+
         }
 
         public void Initialise(EDDPanelCallbacks callbacks, int displayid, string themeasjson, string configuration)
         {
-            DLLCallBack = EDDCanonn.EDDCanonnClass.DLLCallBack;
-            this.PanelCallBack = callbacks;
+            DLLCallBack = EDDCanonnEDDClass.DLLCallBack;
+            PanelCallBack = callbacks;
         }
 
         public void LoadLayout()
         {
-            throw new NotImplementedException();
+
         }
 
         public void NewFilteredJournal(JournalEntry je)
         {
-            throw new NotImplementedException();
+            //    eventOutput.AppendText(je.eventid + Environment.NewLine);
+            //    eventOutput.AppendText(je.json + Environment.NewLine);
+            //    eventOutput.AppendText(IsJournalEntryAllowed(je) + Environment.NewLine);
+            //    eventOutput.AppendText("#########################" + Environment.NewLine);
         }
 
         public void NewTarget(Tuple<string, double, double, double> target)
         {
-            throw new NotImplementedException();
+            eventOutput.AppendText(target + Environment.NewLine);
         }
 
         public void NewUIEvent(string jsonui)
         {
-            throw new NotImplementedException();
+
         }
 
         public void NewUnfilteredJournal(JournalEntry je)
         {
-            throw new NotImplementedException();
+
         }
 
         public void ScreenShotCaptured(string file, Size s)
@@ -106,27 +179,10 @@ namespace EDDCanonn
 
         void IEDDPanelExtension.CursorChanged(JournalEntry je)
         {
-            throw new NotImplementedException();
-        }
-
-        private void InitializeComponent()
-        {
-            this.SuspendLayout();
-            // 
-            // EDDCanonnUserControl
-            // 
-            this.Name = "EDDCanonnUserControl";
-            this.Load += new System.EventHandler(this.EDDCanonnUserControl_Load);
-            this.ResumeLayout(false);
 
         }
+        #endregion
 
-        private void EDDCanonnUserControl_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        //###### IEDDPanelExtension ######
 
 
     }
