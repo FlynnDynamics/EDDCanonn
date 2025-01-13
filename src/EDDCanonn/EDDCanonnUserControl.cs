@@ -67,8 +67,9 @@ namespace EDDCanonn
         private void AddToWhitelistItem(JObject itemObject)
         {
             string definitionRaw = itemObject["definition"].Str();
-            if (!string.IsNullOrEmpty(definitionRaw))
-            {
+            if (string.IsNullOrEmpty(definitionRaw))
+                return;
+
                 JObject definitionObject = definitionRaw.JSONParse().Object();
 
                 // Default key to identify the type. Choose the most common one.
@@ -106,12 +107,8 @@ namespace EDDCanonn
                         dataBlock[key] = val;
                     }
                 }
-
                 if (dataBlock.Count > 0)
-                {
-                    existingEvent.DataBlocks.Add(dataBlock);
-                }
-            }
+                    existingEvent.DataBlocks.Add(dataBlock);         
         }
 
 
