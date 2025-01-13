@@ -7,6 +7,9 @@ This plugin brings the functionality of the [Canonn EDMC](https://github.com/can
 
 ## Features
 
+### User interface Implementation
+Implementation of the full [Canonn EDMC](https://github.com/canonn-science/EDMC-Canonn) user interface.
+
 ### System Target Info
 When selecting a target system in ED, the plugin queries [Spansh](https://spansh.co.uk/plotter) to determine the system's status in the database.
 
