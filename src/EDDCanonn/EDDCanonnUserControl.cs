@@ -26,6 +26,57 @@ namespace EDDCanonn
         }
 
         #region WhiteList
+
+        //this generates a data structure like this:
+
+        // Event Type: CodexEntry
+        // Event Type: ApproachSettlement
+        // Event Type: undefined
+        //   Data Block:
+        //     USSType: $USS_Type_AXShips;
+        //   Data Block:
+        //     BodyType: HyperbolicOrbiter
+        //   Data Block:
+        //     NearestDestination_Localised: Nonhuman Signature
+        //   Data Block:
+        //     NearestDestination: $POIScene_Wreckage_UA;
+        // Event Type: FSSSignalDiscovered
+        //   Data Block:
+        //     SignalName: $Fixed_Event_Life_Belt;
+        //   Data Block:
+        //     SignalName: $Fixed_Event_Life_Cloud;
+        //   Data Block:
+        //     SignalName: $Fixed_Event_Life_Ring;
+        //   Data Block:
+        //     IsStation: True
+        // Event Type: BuySuit
+        // Event Type: Docked
+        //   Data Block:
+        //     StationType: FleetCarrier
+        //   Data Block:
+        //     StationName: Hutton Orbital
+        // Event Type: CarrierJump
+        //   Data Block:
+        //     StationType: FleetCarrier
+        // Event Type: Commander
+        // Event Type: FSSBodySignals
+        // Event Type: Interdicted
+        //   Data Block:
+        //     Faction: 
+        //     IsPlayer: False
+        //   Data Block:
+        //     IsPlayer: False
+        //     IsThargoid: True
+        // Event Type: Promotion
+        // Event Type: SellOrganicData
+        // Event Type: SAASignalsFound
+        // Event Type: ScanOrganic
+        // Event Type: MaterialCollected
+        //   Data Block:
+        //     Name: tg_shipflightdata
+        //   Data Block:
+        //     Name: unknownshipsignature
+
         private void InitializeWhitelist()
         {
             try
@@ -39,7 +90,7 @@ namespace EDDCanonn
                         JArray whitelistItems = jsonResponse.JSONParse().Array();
 
                         if (whitelistItems == null)
-                            throw new Exception("Whitelist is null");
+                            throw new Exception("Whitelist is null"); //wip
 
                         for (int i = 0; i < whitelistItems.Count; i++)
                         {
@@ -136,7 +187,7 @@ namespace EDDCanonn
             }
         }
 
-        private void PrintWhitelist()
+        private void PrintWhitelist() //wip
         {
             for (int i = 0; i < _globalWhitelist.Events.Count; i++)
             {
@@ -190,7 +241,7 @@ namespace EDDCanonn
 
         public void InitialDisplay()
         {
-
+            //wip
         }
 
         public void Initialise(EDDPanelCallbacks callbacks, int displayid, string themeasjson, string configuration)
@@ -201,7 +252,7 @@ namespace EDDCanonn
 
         public void LoadLayout()
         {
-
+            //wip
         }
 
         public void NewFilteredJournal(JournalEntry je)
@@ -214,17 +265,17 @@ namespace EDDCanonn
 
         public void NewTarget(Tuple<string, double, double, double> target)
         {
-            eventOutput.AppendText(target + Environment.NewLine);
+            //wip
         }
 
         public void NewUIEvent(string jsonui)
         {
-
+            //wip
         }
 
         public void NewUnfilteredJournal(JournalEntry je)
         {
-
+            //wip
         }
 
         public void ScreenShotCaptured(string file, Size s)
@@ -239,17 +290,17 @@ namespace EDDCanonn
 
         public void ThemeChanged(string themeasjson)
         {
-            throw new NotImplementedException();
+            //wip
         }
 
         public void TransparencyModeChanged(bool on)
         {
-            throw new NotImplementedException();
+            //wip
         }
 
         void IEDDPanelExtension.CursorChanged(JournalEntry je)
         {
-
+            //wip
         }
         #endregion
 

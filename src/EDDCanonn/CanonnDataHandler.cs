@@ -74,7 +74,7 @@ namespace EDDCanonn
 
 
         // Performs a GET request to the specified endpoint
-        private string PerformGetRequest(string fullUrl)
+        private string PerformGetRequest(string fullUrl)//wip
         {
             try
             {
@@ -104,7 +104,7 @@ namespace EDDCanonn
         }
 
         // Performs a POST request to the specified endpoint with JSON data
-        private string PerformPostRequest(string fullUrl, string postData, string contentType)
+        private string PerformPostRequest(string fullUrl, string postData, string contentType)//wip
         {
             try
             {
