@@ -4,8 +4,6 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.Collections.Generic;
 using QuickJSON;
-using System.Threading.Tasks;
-using System.Linq;
 
 namespace EDDCanonn
 {
@@ -14,7 +12,6 @@ namespace EDDCanonn
         private CanonnDataHandler dataHandler;
         private EDDPanelCallbacks PanelCallBack;
         private EDDCallBacks DLLCallBack;
-
 
         public EDDCanonnUserControl()
         {
@@ -28,13 +25,12 @@ namespace EDDCanonn
             InitializeWhitelist();
         }
 
-
         #region WhiteList
         private void InitializeWhitelist()
         {
             try
             {
-                // Fetch the whitelist from a remote source
+                // Fetch the whitelist
                 dataHandler.FetchCanonnAsync(CanonnHelper.WhitelistUrl,
                 jsonResponse =>
                 {
@@ -43,9 +39,14 @@ namespace EDDCanonn
                         JArray whitelistItems = jsonResponse.JSONParse().Array();
 
                         if (whitelistItems == null)
-                            return;
+                            throw new Exception("Whitelist is null");
 
-                        AddToWhitelist(whitelistItems);
+                        for (int i = 0; i < whitelistItems.Count; i++)
+                        {
+                            JObject itemObject = whitelistItems[i].Object();
+
+                            AddToWhitelistItem(itemObject);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -63,23 +64,18 @@ namespace EDDCanonn
             }
         }
 
-        private void AddToWhitelist(JArray whitelistItems)
+        private void AddToWhitelistItem(JObject itemObject)
         {
-            // Build the in-memory whitelist
-            for (int i = 0; i < whitelistItems.Count; i++)
+            string definitionRaw = itemObject["definition"].Str();
+            if (!string.IsNullOrEmpty(definitionRaw))
             {
-                JObject itemObject = whitelistItems[i].Object();
-                string definitionRaw = itemObject["definition"].Str();
-                if (string.IsNullOrEmpty(definitionRaw))
-                    continue;
-
                 JObject definitionObject = definitionRaw.JSONParse().Object();
 
-                // Default key to identify the type
+                // Default key to identify the type. Choose the most common one.
                 string typeKey = "event";
                 string typeValue = definitionObject[typeKey].Str();
-
-                if (typeValue == "")
+                // Everything that does not contain the default key is treated as undefined.
+                if (string.IsNullOrEmpty(typeValue))
                     typeValue = "undefined";
 
                 WhitelistEvent existingEvent = null;
@@ -94,29 +90,30 @@ namespace EDDCanonn
 
                 if (existingEvent == null)
                 {
-                    existingEvent = new WhitelistEvent();
-                    existingEvent.Type = typeValue;
+                    existingEvent = new WhitelistEvent { Type = typeValue };
                     _globalWhitelist.Events.Add(existingEvent);
                 }
 
                 Dictionary<string, object> dataBlock = new Dictionary<string, object>();
                 List<string> keys = new List<string>(definitionObject.PropertyNames());
 
-                // Collect every property except the type key
                 for (int kk = 0; kk < keys.Count; kk++)
                 {
                     string key = keys[kk];
-                    if (key.Equals(typeKey, StringComparison.InvariantCultureIgnoreCase))
-                        continue;
-
-                    object val = definitionObject[key].Value;
-                    dataBlock[key] = val;
+                    if (!key.Equals(typeKey, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        object val = definitionObject[key].Value;
+                        dataBlock[key] = val;
+                    }
                 }
 
                 if (dataBlock.Count > 0)
+                {
                     existingEvent.DataBlocks.Add(dataBlock);
+                }
             }
         }
+
 
         private WhitelistData _globalWhitelist = new WhitelistData();
 
@@ -141,10 +138,31 @@ namespace EDDCanonn
                 DataBlocks = new List<Dictionary<string, object>>();
             }
         }
+
+        private void PrintWhitelist()
+        {
+            for (int i = 0; i < _globalWhitelist.Events.Count; i++)
+            {
+                WhitelistEvent we = _globalWhitelist.Events[i];
+                eventOutput.AppendText("Event Type: " + we.Type + "\r\n");
+
+                for (int j = 0; j < we.DataBlocks.Count; j++)
+                {
+                    eventOutput.AppendText("  Data Block:\r\n");
+                    Dictionary<string, object> db = we.DataBlocks[j];
+
+                    foreach (KeyValuePair<string, object> kvp in db)
+                    {
+                        eventOutput.AppendText("    " + kvp.Key + ": " + kvp.Value + "\r\n");
+                    }
+                }
+                eventOutput.AppendText("\r\n");
+            }
+        }
         #endregion
 
         #region IEDDPanelExtension
-        public bool SupportTransparency => false;
+        public bool SupportTransparency => true;
 
         public bool DefaultTransparent => false;
 
@@ -170,7 +188,7 @@ namespace EDDCanonn
 
         public void HistoryChange(int count, string commander, bool beta, bool legacy)
         {
-
+            PrintWhitelist();
         }
 
         public void InitialDisplay()
