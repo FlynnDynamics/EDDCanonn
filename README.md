@@ -1,4 +1,4 @@
-# EDD-Canonn Plugin |Work in Progress| Readme AI Generated. 
+# EDD-Canonn Plugin |Work in Progress| Readme AI Generated. Incorrect information expected.
 
 An EDDiscovery plugin integrating features from [Canonn EDMC](https://github.com/canonn-science/EDMC-Canonn) and [EDMC-RingSurvey](https://github.com/canonn-science/EDMC-RingSurvey), adapted for EDDiscovery to support scientific data collection and exploration efforts.
 
