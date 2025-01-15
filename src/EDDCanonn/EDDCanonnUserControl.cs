@@ -9,7 +9,7 @@ namespace EDDCanonn
 {
     partial class EDDCanonnUserControl : UserControl, IEDDPanelExtension
     {
-        private CanonnDataHandler dataHandler;
+        private ActionDataHandler dataHandler;
         private EDDPanelCallbacks PanelCallBack;
         private EDDCallBacks DLLCallBack;
 
@@ -21,7 +21,7 @@ namespace EDDCanonn
 
         private void Init()
         {
-            dataHandler = new CanonnDataHandler();
+            dataHandler = new ActionDataHandler();
             InitializeWhitelist();
         }
 
@@ -82,7 +82,7 @@ namespace EDDCanonn
             try
             {
                 // Fetch the whitelist
-                dataHandler.FetchCanonnAsync(CanonnHelper.WhitelistUrl,
+                dataHandler.FetchDataAsync(CanonnHelper.WhitelistUrl,
                 jsonResponse =>
                 {
                     try
@@ -90,7 +90,7 @@ namespace EDDCanonn
                         JArray whitelistItems = jsonResponse.JSONParse().Array();
 
                         if (whitelistItems == null)
-                            throw new Exception("Whitelist is null"); //wip
+                            throw new Exception("EDDCanonn: Whitelist is null"); //wip
 
                         for (int i = 0; i < whitelistItems.Count; i++)
                         {
@@ -101,17 +101,17 @@ namespace EDDCanonn
                     }
                     catch (Exception ex)
                     {
-                        Console.Error.WriteLine($"Error processing whitelist: {ex.Message}");
+                        Console.Error.WriteLine($"EDDCanonn: Error processing whitelist: {ex.Message}");
                     }
                 },
                 ex =>
                 {
-                    Console.Error.WriteLine($"Error fetching whitelist: {ex.Message}");
+                    Console.Error.WriteLine($"EDDCanonn: Error fetching whitelist: {ex.Message}");
                 });
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Unexpected error in InitializeWhitelist: {ex.Message}");
+                Console.Error.WriteLine($"EDDCanonn: Unexpected error in InitializeWhitelist: {ex.Message}");
             }
         }
 
@@ -209,6 +209,12 @@ namespace EDDCanonn
         }
         #endregion
 
+
+        private void buttonCurrentSys_Click(object sender, EventArgs e)
+        {
+            DLLCallBack.RequestScanData(null, this, "sol", true);
+        }
+
         #region IEDDPanelExtension
         public bool SupportTransparency => true;
 
@@ -236,7 +242,8 @@ namespace EDDCanonn
 
         public void HistoryChange(int count, string commander, bool beta, bool legacy)
         {
-            PrintWhitelist();
+           
+ 
         }
 
         public void InitialDisplay()
@@ -257,8 +264,10 @@ namespace EDDCanonn
 
         public void NewFilteredJournal(JournalEntry je)
         {
-            //    eventOutput.AppendText(je.eventid + Environment.NewLine);
-            //    eventOutput.AppendText(je.json + Environment.NewLine);
+
+
+            eventOutput.AppendText(je.eventid + Environment.NewLine);
+            eventOutput.AppendText(je.json + Environment.NewLine);
             //    eventOutput.AppendText(IsJournalEntryAllowed(je) + Environment.NewLine);
             //    eventOutput.AppendText("#########################" + Environment.NewLine);
         }
@@ -270,12 +279,13 @@ namespace EDDCanonn
 
         public void NewUIEvent(string jsonui)
         {
-            //wip
+
         }
 
         public void NewUnfilteredJournal(JournalEntry je)
         {
-            //wip
+          //  eventOutput.AppendText(je.eventid + Environment.NewLine);
+         //  eventOutput.AppendText(je.json + Environment.NewLine);
         }
 
         public void ScreenShotCaptured(string file, Size s)

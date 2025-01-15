@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -7,10 +8,51 @@ using System.Threading.Tasks;
 
 namespace EDDCanonn
 {
-    public class CanonnDataHandler
+    public class ActionDataHandler
     {
-        // Fetches data from the Canonn endpoint
-        public void FetchCanonnAsync(string fullUrl, Action<string> callback, Action<Exception> errorCallback = null)
+        #region Threading
+        private readonly List<Task> _tasks = new List<Task>();
+        private readonly object _lock = new object();
+        public void StartTask(Action job)
+        {
+            lock (_lock)
+            {
+                if (_isClosing)
+                    return;
+
+                Task task = Task.Run(() =>
+            {
+                try
+                {
+                    job.Invoke();
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"EDDCanonn: Error in job execution: {ex.Message}");
+                    throw;
+                }
+            });
+                _tasks.Add(task);
+                task.ContinueWith(t =>
+                {
+                    _tasks.Remove(t);
+                    Console.WriteLine($"EDDCanonn: Task {t.Id} {t.Status}");
+                });
+            }
+        }
+
+        private bool _isClosing = false;
+        public void Closing()
+        {
+            lock (_lock)
+                _isClosing = true;
+
+            Task.WaitAll(_tasks.ToArray());
+        }
+        #endregion
+
+        #region Networking 
+        public void FetchDataAsync(string fullUrl, Action<string> callback, Action<Exception> errorCallback = null)
         {
             StartTask(() =>
             {
@@ -26,8 +68,19 @@ namespace EDDCanonn
             });
         }
 
-        // Pushes data to the Canonn endpoint
-        public void PushCanonnAsync(string fullUrl, string jsonData, Action<bool> callback, Action<Exception> errorCallback = null)
+        public string FetchData(string fullUrl)
+        {
+            try
+            {
+                return PerformGetRequest(fullUrl);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public void PushDataAsync(string fullUrl, string jsonData, Action<bool> callback, Action<Exception> errorCallback = null)
         {
             StartTask(() =>
             {
@@ -44,34 +97,18 @@ namespace EDDCanonn
             });
         }
 
-        private readonly ConcurrentQueue<Task> _tasks = new ConcurrentQueue<Task>();
-        public void StartTask(Action job)
+        public bool PushData(string fullUrl, string jsonData)
         {
-            Task task = Task.Run(() =>
+            try
             {
-                try
-                {
-                    job.Invoke();
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine($"Error in job execution: {ex.Message}");
-                    throw;
-                }
-            });
-            _tasks.Enqueue(task);
-            task.ContinueWith(t =>
+                string response = PerformPostRequest(fullUrl, jsonData, "application/json");
+                return !string.IsNullOrEmpty(response);
+            }
+            catch (Exception ex)
             {
-                _tasks.TryDequeue(out _); ;
-                Console.WriteLine($"Task {t.Id} {t.Status}");
-            });
+                throw;
+            }
         }
-
-        public void Closing()
-        {
-            Task.WaitAll(_tasks.ToArray());
-        }
-
 
         // Performs a GET request to the specified endpoint
         private string PerformGetRequest(string fullUrl)//wip
@@ -81,12 +118,13 @@ namespace EDDCanonn
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(fullUrl);
                 request.Method = "GET";
                 request.Accept = "application/json";
+                request.Timeout = 5000;
 
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 {
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        Console.Error.WriteLine($"GET request failed. Status: {response.StatusCode}");
+                        Console.Error.WriteLine($"EDDCanonn: GET request failed. Status: {response.StatusCode}");
                         return null;
                     }
 
@@ -98,7 +136,7 @@ namespace EDDCanonn
             }
             catch (WebException ex)
             {
-                Console.Error.WriteLine($"Error performing GET request: {ex.Message}");
+                Console.Error.WriteLine($"EDDCanonn: Error performing GET request: {ex.Message}");
                 throw;
             }
         }
@@ -112,6 +150,7 @@ namespace EDDCanonn
                 request.Method = "POST";
                 request.ContentType = contentType;
                 request.ContentLength = Encoding.UTF8.GetByteCount(postData);
+                request.Timeout = 5000;
 
                 using (StreamWriter writer = new StreamWriter(request.GetRequestStream()))
                 {
@@ -122,7 +161,7 @@ namespace EDDCanonn
                 {
                     if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
                     {
-                        Console.Error.WriteLine($"POST request failed. Status: {response.StatusCode}");
+                        Console.Error.WriteLine($"EDDCanonn: POST request failed. Status: {response.StatusCode}");
                         return null;
                     }
 
@@ -134,9 +173,10 @@ namespace EDDCanonn
             }
             catch (WebException ex)
             {
-                Console.Error.WriteLine($"Error performing POST request: {ex.Message}");
+                Console.Error.WriteLine($"EDDCanonn: Error performing POST request: {ex.Message}");
                 throw;
             }
         }
+        #endregion
     }
 }
