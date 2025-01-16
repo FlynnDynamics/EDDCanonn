@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -11,9 +10,25 @@ namespace EDDCanonn
     public class ActionDataHandler
     {
         #region Threading
+        public void StartTaskAsync(Action job, Action<Exception> errorCallback = null)
+        {
+            StartTask(() =>
+            {
+                try
+                {
+                    job?.Invoke();
+                }
+                catch (Exception ex)
+                {
+                    errorCallback?.Invoke(ex);
+                }
+            });
+        }
+
         private readonly List<Task> _tasks = new List<Task>();
         private readonly object _lock = new object();
-        public void StartTask(Action job)
+
+        private void StartTask(Action job)
         {
             lock (_lock)
             {
