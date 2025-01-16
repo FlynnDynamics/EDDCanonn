@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.Collections.Generic;
 using QuickJSON;
+using System.Collections.Concurrent;
 
 namespace EDDCanonn
 {
@@ -121,45 +122,45 @@ namespace EDDCanonn
             if (string.IsNullOrEmpty(definitionRaw))
                 return;
 
-                JObject definitionObject = definitionRaw.JSONParse().Object();
+            JObject definitionObject = definitionRaw.JSONParse().Object();
 
-                // Default key to identify the type. Choose the most common one.
-                string typeKey = "event";
-                string typeValue = definitionObject[typeKey].Str();
-                // Everything that does not contain the default key is treated as undefined.
-                if (string.IsNullOrEmpty(typeValue))
-                    typeValue = "undefined";
+            // Default key to identify the type. Choose the most common one.
+            string typeKey = "event";
+            string typeValue = definitionObject[typeKey].Str();
+            // Everything that does not contain the default key is treated as undefined.
+            if (string.IsNullOrEmpty(typeValue))
+                typeValue = "undefined";
 
-                WhitelistEvent existingEvent = null;
-                for (int e = 0; e < _globalWhitelist.Events.Count; e++)
+            WhitelistEvent existingEvent = null;
+            for (int e = 0; e < _globalWhitelist.Events.Count; e++)
+            {
+                if (_globalWhitelist.Events[e].Type.Equals(typeValue, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    if (_globalWhitelist.Events[e].Type.Equals(typeValue, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        existingEvent = _globalWhitelist.Events[e];
-                        break;
-                    }
+                    existingEvent = _globalWhitelist.Events[e];
+                    break;
                 }
+            }
 
-                if (existingEvent == null)
+            if (existingEvent == null)
+            {
+                existingEvent = new WhitelistEvent { Type = typeValue };
+                _globalWhitelist.Events.Add(existingEvent);
+            }
+
+            Dictionary<string, object> dataBlock = new Dictionary<string, object>();
+            List<string> keys = new List<string>(definitionObject.PropertyNames());
+
+            for (int kk = 0; kk < keys.Count; kk++)
+            {
+                string key = keys[kk];
+                if (!key.Equals(typeKey, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    existingEvent = new WhitelistEvent { Type = typeValue };
-                    _globalWhitelist.Events.Add(existingEvent);
+                    object val = definitionObject[key].Value;
+                    dataBlock[key] = val;
                 }
-
-                Dictionary<string, object> dataBlock = new Dictionary<string, object>();
-                List<string> keys = new List<string>(definitionObject.PropertyNames());
-
-                for (int kk = 0; kk < keys.Count; kk++)
-                {
-                    string key = keys[kk];
-                    if (!key.Equals(typeKey, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        object val = definitionObject[key].Value;
-                        dataBlock[key] = val;
-                    }
-                }
-                if (dataBlock.Count > 0)
-                    existingEvent.DataBlocks.Add(dataBlock);         
+            }
+            if (dataBlock.Count > 0)
+                existingEvent.DataBlocks.Add(dataBlock);
         }
 
 
@@ -209,10 +210,56 @@ namespace EDDCanonn
         }
         #endregion
 
-
-        private void buttonCurrentSys_Click(object sender, EventArgs e)
+        public JObject BuildPayload(JournalEntry je)//wip
         {
-            DLLCallBack.RequestScanData(null, this, "sol", true);
+            JObject payload = new JObject();
+            JObject gameState = new JObject();
+
+            payload["gameState"] = gameState;
+
+            gameState["systemName"] = je.systemname;
+            gameState["systemAddress"] = je.systemaddress;
+            gameState["systemCoordinates"] = JArray.FromObject(new double[] { je.x, je.y, je.z });
+
+            if (je.bodyname != null && !string.IsNullOrEmpty(je.bodyname) && je.bodyname != "Unknown")
+                gameState["bodyName"] = je.bodyname;
+
+            if (je.stationname != null && !string.IsNullOrEmpty(je.stationname) && je.stationname != "Unknown")
+                gameState["station"] = je.stationname;
+
+            if (statusJson != null && statusJson.ContainsKey("Latitude") && statusJson["Latitude"] != null)
+                gameState["latitude"] = statusJson["Latitude"];
+
+            if (statusJson != null && statusJson.ContainsKey("longitude") && statusJson["longitude"] != null)
+                gameState["longitude"] = statusJson["longitude"];
+
+            if (statusJson != null && statusJson.ContainsKey("Temperature") && statusJson["Temperature"] != null)
+                gameState["temperature"] = statusJson["Temperature"];
+
+            if (statusJson != null && statusJson.ContainsKey("Gravity") && statusJson["Gravity"] != null)
+                gameState["gravity"] = statusJson["Gravity"];
+
+            gameState["clientVersion"] = "EDDCanonnClient v1.1.1";
+            gameState["isBeta"] = je.beta;
+            gameState["platform"] = "PC";
+            gameState["odyssey"] = je.odyssey;
+
+            payload["rawEvent"] = JToken.Parse(je.json);
+            payload["eventType"] = je.eventid;
+            payload["cmdrName"] = je.cmdrname;
+
+            return payload;
+        }
+
+        public void DataResult(object requesttag, string data)//wip
+        {
+            eventOutput.AppendText(requesttag + Environment.NewLine);
+            eventOutput.AppendText(data + Environment.NewLine);
+        }
+
+        private void TestButton_Click(object sender, EventArgs e)//wip
+        {
+            DLLCallBack.RequestScanData("Flynn", this, "Stuemeae KM-W c1-6019", true);
         }
 
         #region IEDDPanelExtension
@@ -230,46 +277,46 @@ namespace EDDCanonn
             dataHandler.Closing();
         }
 
-        public void ControlTextVisibleChange(bool on)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string HelpKeyOrAddress()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void HistoryChange(int count, string commander, bool beta, bool legacy)
-        {
-           
- 
-        }
-
-        public void InitialDisplay()
-        {
-            //wip
-        }
-
         public void Initialise(EDDPanelCallbacks callbacks, int displayid, string themeasjson, string configuration)
         {
             DLLCallBack = EDDCanonnEDDClass.DLLCallBack;
             PanelCallBack = callbacks;
         }
 
-        public void LoadLayout()
+        public void NewFilteredJournal(JournalEntry je)
         {
             //wip
         }
 
-        public void NewFilteredJournal(JournalEntry je)
+        private readonly ConcurrentDictionary<string, JToken> statusJson = new ConcurrentDictionary<string, JToken>();
+
+        public void NewUIEvent(string jsonui)
         {
+            try
+            {
+                dataHandler.StartTaskAsync(
+                () =>
+                {
+                    JObject o = jsonui.JSONParse().Object();
+                    if (o == null)
+                        return;
 
+                    string type = o["EventTypeStr"].Str();
+                    if (string.IsNullOrEmpty(type))
+                        return;
 
-            eventOutput.AppendText(je.eventid + Environment.NewLine);
-            eventOutput.AppendText(je.json + Environment.NewLine);
-            //    eventOutput.AppendText(IsJournalEntryAllowed(je) + Environment.NewLine);
-            //    eventOutput.AppendText("#########################" + Environment.NewLine);
+                    statusJson[type] = o;
+                },
+                ex =>
+                {
+                    Console.Error.WriteLine($"EDDCanonn: Error processing statusJson: {ex.Message}");
+                }
+                );
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"EDDCanonn: Unexpected error in UI event: {ex.Message}");
+            }
         }
 
         public void NewTarget(Tuple<string, double, double, double> target)
@@ -277,15 +324,24 @@ namespace EDDCanonn
             //wip
         }
 
-        public void NewUIEvent(string jsonui)
-        {
-
-        }
-
         public void NewUnfilteredJournal(JournalEntry je)
         {
-          //  eventOutput.AppendText(je.eventid + Environment.NewLine);
-         //  eventOutput.AppendText(je.json + Environment.NewLine);
+            //wip
+        }
+
+        public void HistoryChange(int count, string commander, bool beta, bool legacy)
+        {
+            //wip
+        }
+
+        public void InitialDisplay()
+        {
+            //wip
+        }
+
+        public void LoadLayout()
+        {
+            //wip
         }
 
         public void ScreenShotCaptured(string file, Size s)
@@ -311,6 +367,16 @@ namespace EDDCanonn
         void IEDDPanelExtension.CursorChanged(JournalEntry je)
         {
             //wip
+        }
+
+        public void ControlTextVisibleChange(bool on)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string HelpKeyOrAddress()
+        {
+            throw new NotImplementedException();
         }
         #endregion
 
