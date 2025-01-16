@@ -31,8 +31,15 @@ namespace EDDCanonn
 
         }
 
+        public void EDDDataResult(object requesttag, object usertag, string data)
+        {
+            EDDCanonn.EDDCanonnUserControl uc = usertag as EDDCanonn.EDDCanonnUserControl;
+            uc.DataResult(requesttag, data);
+        }
+
         public void EDDTerminate()
         {
+
             Debug.WriteLine("CSharpDLLPanel Unload");
         }
 
