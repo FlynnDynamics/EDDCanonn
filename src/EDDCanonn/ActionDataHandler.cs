@@ -4,31 +4,32 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace EDDCanonn
 {
     public class ActionDataHandler
     {
         #region Threading
-        public void StartTaskAsync(Action job, Action<Exception> errorCallback = null)
+        public void StartTaskAsync(Action job, Action<Exception> errorCallback = null, string name = "default")
         {
             StartTask(() =>
             {
                 try
-                {
+                {                 
                     job?.Invoke();
                 }
                 catch (Exception ex)
                 {
                     errorCallback?.Invoke(ex);
                 }
-            });
+            },name);
         }
 
         private readonly List<Task> _tasks = new List<Task>();
         private readonly object _lock = new object();
 
-        private void StartTask(Action job)
+        private void StartTask(Action job,string name)
         {
             lock (_lock)
             {
@@ -38,7 +39,7 @@ namespace EDDCanonn
                 Task task = Task.Run(() =>
             {
                 try
-                {
+                {          
                     job.Invoke();
                 }
                 catch (Exception ex)
@@ -48,10 +49,13 @@ namespace EDDCanonn
                 }
             });
                 _tasks.Add(task);
+
+                Console.WriteLine($"EDDCanonn: Task registered. [ID: {task.Id}, Name: {name}, Status: {task.Status}]");
+
                 task.ContinueWith(t =>
                 {
                     _tasks.Remove(t);
-                    Console.WriteLine($"EDDCanonn: Task {t.Id} {t.Status}");
+                    Console.WriteLine($"EDDCanonn: Task finished. [ID: {t.Id}, Name: {name}, Final Status: {t.Status}]");
                 });
             }
         }
@@ -67,7 +71,7 @@ namespace EDDCanonn
         #endregion
 
         #region Networking 
-        public void FetchDataAsync(string fullUrl, Action<string> callback, Action<Exception> errorCallback = null)
+        public void FetchDataAsync(string fullUrl, Action<string> callback, Action<Exception> errorCallback = null, string name = "default")
         {
             StartTask(() =>
             {
@@ -80,7 +84,7 @@ namespace EDDCanonn
                 {
                     errorCallback?.Invoke(ex);
                 }
-            });
+            }, name);
         }
 
         public string FetchData(string fullUrl)
@@ -95,7 +99,7 @@ namespace EDDCanonn
             }
         }
 
-        public void PushDataAsync(string fullUrl, string jsonData, Action<bool> callback, Action<Exception> errorCallback = null)
+        public void PushDataAsync(string fullUrl, string jsonData, Action<bool> callback, Action<Exception> errorCallback = null, string name = "default")
         {
             StartTask(() =>
             {
@@ -109,7 +113,7 @@ namespace EDDCanonn
                 {
                     errorCallback?.Invoke(ex);
                 }
-            });
+            }, name);
         }
 
         public bool PushData(string fullUrl, string jsonData)
