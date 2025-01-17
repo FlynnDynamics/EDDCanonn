@@ -5,6 +5,9 @@ using System.Drawing;
 using System.Collections.Generic;
 using QuickJSON;
 using System.Collections.Concurrent;
+using System.Linq;
+using EDDCanonn.Base;
+using System.Xml;
 
 namespace EDDCanonn
 {
@@ -108,7 +111,9 @@ namespace EDDCanonn
                 ex =>
                 {
                     Console.Error.WriteLine($"EDDCanonn: Error fetching whitelist: {ex.Message}");
-                });
+                },
+                "InitializeWhitelist"
+                );
             }
             catch (Exception ex)
             {
@@ -188,7 +193,61 @@ namespace EDDCanonn
             }
         }
 
-        private void PrintWhitelist() //wip
+        private bool IsEventValid(string eventName, string jsonString)
+        {
+            JObject jsonObject = string.IsNullOrEmpty(jsonString) ? null : jsonString.JSONParse().Object();
+
+            WhitelistEvent eventNode = _globalWhitelist.Events.FirstOrDefault(e =>
+                e.Type.Equals(eventName, StringComparison.InvariantCultureIgnoreCase));
+
+            if (eventNode != null && IsDataBlockValid(eventNode, jsonObject))
+                return true;
+
+            if (eventNode == null)
+            {
+                eventNode = _globalWhitelist.Events.FirstOrDefault(e =>
+                e.Type.Equals("undefined", StringComparison.InvariantCultureIgnoreCase));
+
+                if (eventNode != null && IsDataBlockValid(eventNode, jsonObject))
+                    return true;
+            }
+
+            return false;
+
+        }
+
+        private bool IsDataBlockValid(WhitelistEvent eventNode, JObject jsonObject)
+        {
+            if (eventNode.DataBlocks.Count == 0)
+                return true;
+
+            foreach (var dataBlock in eventNode.DataBlocks)
+            {
+                bool allKeyValuePairsMatch = true;
+
+                foreach (var key in dataBlock.Keys)
+                {
+                    if (!jsonObject.Contains(key))
+                    {
+                        allKeyValuePairsMatch = false;
+                        break;
+                    }
+
+                    if (!jsonObject[key].ToString().Trim('"').Equals(dataBlock[key].ToString(), StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        allKeyValuePairsMatch = false;
+                        break;
+                    }
+                }
+
+                if (allKeyValuePairsMatch)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private void PrintWhitelist()
         {
             for (int i = 0; i < _globalWhitelist.Events.Count; i++)
             {
@@ -208,12 +267,22 @@ namespace EDDCanonn
                 eventOutput.AppendText("\r\n");
             }
         }
+
+        private void RunWhiteListTestCases()
+        {
+            foreach (var (eventName, jsonPayload, expectedResult) in TestData.WhiteListTestCases)
+                eventOutput.AppendText($"{eventName} - ExpectedResult: {expectedResult} - Result: {IsEventValid(eventName, jsonPayload)}" + Environment.NewLine);
+        }
+
         #endregion
 
+        #region CanonnPayload
         public JObject BuildPayload(JournalEntry je)//wip
         {
             JObject payload = new JObject();
             JObject gameState = new JObject();
+
+            JObject status = getStatusJson();
 
             payload["gameState"] = gameState;
 
@@ -227,19 +296,20 @@ namespace EDDCanonn
             if (je.stationname != null && !string.IsNullOrEmpty(je.stationname) && je.stationname != "Unknown")
                 gameState["station"] = je.stationname;
 
-            if (statusJson != null && statusJson.ContainsKey("Latitude") && statusJson["Latitude"] != null)
-                gameState["latitude"] = statusJson["Latitude"];
+            if (status != null && status.Contains("Pos") && status["Pos"]["ValidPosition"]?.ToObject<bool>() == true && status["Pos"]["Latitude"] != null)
+                gameState["latitude"] = status["Pos"]["Latitude"].ToObject<double>();
 
-            if (statusJson != null && statusJson.ContainsKey("longitude") && statusJson["longitude"] != null)
-                gameState["longitude"] = statusJson["longitude"];
+            if (status != null && status.Contains("Pos") && status["Pos"]["ValidPosition"]?.ToObject<bool>() == true && status["Pos"]["Longitude"] != null)
+                gameState["longitude"] = status["Pos"]["Longitude"].ToObject<double>();
 
-            if (statusJson != null && statusJson.ContainsKey("Temperature") && statusJson["Temperature"] != null)
-                gameState["temperature"] = statusJson["Temperature"];
+            if (status != null && status.Contains("Temperature") && status["Temperature"] != null && status["Temperature"].ToObject<double>() >= 0)
+                gameState["temperature"] = status["Temperature"].ToObject<double>();
 
-            if (statusJson != null && statusJson.ContainsKey("Gravity") && statusJson["Gravity"] != null)
-                gameState["gravity"] = statusJson["Gravity"];
+            if (status != null && status.Contains("Gravity") && status["Gravity"] != null && status["Gravity"].ToObject<double>() >= 0)
+                gameState["gravity"] = status["Gravity"].ToObject<double>();
 
-            gameState["clientVersion"] = "EDDCanonnClient v1.1.1";
+
+            gameState["clientVersion"] = "EDDCanonnClient v0.1";
             gameState["isBeta"] = je.beta;
             gameState["platform"] = "PC";
             gameState["odyssey"] = je.odyssey;
@@ -250,6 +320,7 @@ namespace EDDCanonn
 
             return payload;
         }
+        #endregion
 
         public void DataResult(object requesttag, string data)//wip
         {
@@ -257,9 +328,9 @@ namespace EDDCanonn
             eventOutput.AppendText(data + Environment.NewLine);
         }
 
-        private void TestButton_Click(object sender, EventArgs e)//wip
+        private void TestButton_Click(object sender, EventArgs e)
         {
-            DLLCallBack.RequestScanData("Flynn", this, "Stuemeae KM-W c1-6019", true);
+      
         }
 
         #region IEDDPanelExtension
@@ -285,18 +356,36 @@ namespace EDDCanonn
 
         public void NewFilteredJournal(JournalEntry je)
         {
-            //wip
-        }
-
-        private readonly ConcurrentDictionary<string, JToken> statusJson = new ConcurrentDictionary<string, JToken>();
-
-        public void NewUIEvent(string jsonui)
-        {
             try
             {
                 dataHandler.StartTaskAsync(
                 () =>
                 {
+                    if (IsEventValid(je.eventid, je.json))
+                        eventOutput.Invoke((MethodInvoker)delegate
+                        {
+                            eventOutput.AppendText(BuildPayload(je) + Environment.NewLine);
+                            eventOutput.AppendText("" + Environment.NewLine);
+                        });
+                },
+                ex =>
+                {
+                    Console.Error.WriteLine($"EDDCanonn: Error processing JournalEntry: {ex.Message}");
+                },
+                "NewFilteredJournal"
+                );
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"EDDCanonn: Unexpected error in NewFilteredJournal: {ex.Message}");
+            }
+        }
+
+
+        private readonly object _lockStatusJson = new object();
+        private JObject StatusJson;
+        public void NewUIEvent(string jsonui)
+        {    
                     JObject o = jsonui.JSONParse().Object();
                     if (o == null)
                         return;
@@ -305,18 +394,14 @@ namespace EDDCanonn
                     if (string.IsNullOrEmpty(type))
                         return;
 
-                    statusJson[type] = o;
-                },
-                ex =>
-                {
-                    Console.Error.WriteLine($"EDDCanonn: Error processing statusJson: {ex.Message}");
-                }
-                );
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"EDDCanonn: Unexpected error in UI event: {ex.Message}");
-            }
+            lock (_lockStatusJson)
+                StatusJson = o;
+        }
+
+        private JObject getStatusJson()
+        {
+            lock (_lockStatusJson)
+                return new JObject(StatusJson);
         }
 
         public void NewTarget(Tuple<string, double, double, double> target)

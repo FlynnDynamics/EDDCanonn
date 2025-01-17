@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="ActionDataHandler.cs" />
     <Compile Include="Base\CanonnDataHandlerEnqueueJob.cs" />
+    <Compile Include="Base\TestData.cs" />
     <Compile Include="CanonnHelper.cs" />
     <Compile Include="EDDCanonn.cs" />
     <Compile Include="EDDCanonnUserControl.cs">

@@ -5,6 +5,9 @@ namespace EDDCanonn
     partial class EDDCanonnUserControl
     {
         private System.ComponentModel.IContainer components = null;
+        private System.Windows.Forms.RichTextBox richTextBox1;
+        private TextBox eventOutput;
+        private Button testButton;
 
         protected override void Dispose(bool disposing)
         {
@@ -15,11 +18,9 @@ namespace EDDCanonn
             base.Dispose(disposing);
         }
 
-        private TextBox eventOutput;
         private void InitializeComponent()
         {
-           
-        
+            // TextBox for event output
             this.eventOutput = new TextBox
             {
                 Multiline = true,
@@ -27,30 +28,20 @@ namespace EDDCanonn
                 Dock = DockStyle.Fill,
                 ReadOnly = true
             };
+
+            // Button for test action
+            this.testButton = new Button
+            {
+                Text = "Test",
+                Dock = DockStyle.Top
+            };
+            this.testButton.Click += TestButton_Click;
+
+            // Adding controls
             this.Controls.Add(this.eventOutput);
-            // 
-            // buttonCurrentSys
-            // 
-            this.buttonCurrentSys.Location = new System.Drawing.Point(20, 60);
-            this.buttonCurrentSys.Name = "buttonCurrentSys";
-            this.buttonCurrentSys.Size = new System.Drawing.Size(200, 30);
-            this.buttonCurrentSys.TabIndex = 1;
-            this.buttonCurrentSys.Text = "Get System Info";
-            this.buttonCurrentSys.UseVisualStyleBackColor = true;
-            this.buttonCurrentSys.Click += new System.EventHandler(this.buttonCurrentSys_Click);
-            // 
-            // DemonstrationUserControl
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.eventOutput);
-            this.Controls.Add(this.buttonCurrentSys);
-            this.Name = "DemonstrationUserControl";
-            this.Size = new System.Drawing.Size(250, 120);
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            this.Controls.Add(this.testButton);
         }
 
-        private System.Windows.Forms.Button buttonCurrentSys;
+
     }
 }
